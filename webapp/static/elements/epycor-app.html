@@ -1,0 +1,76 @@
+<dom-module id="epycor-app">
+  <template>
+    <style include="shared-styles">
+      #contents {
+        overflow-y: auto;
+        height: calc(100vh - 144px);
+      }
+    </style>
+
+    <app-header>
+      <app-toolbar>
+        <paper-icon-button icon="menu" onclick="drawer.toggle()"></paper-icon-button>
+        <div main-title>Epycor</div>
+      </app-toolbar>
+      <app-toolbar>
+        <paper-tabs selected="{{selected}}" fallback-selection="0">
+          <paper-tab>Allocations</paper-tab>
+          <paper-tab>Enter Time</paper-tab>
+          <paper-tab>Analytics</paper-tab>
+        </paper-tabs>
+      </app-toolbar>
+    </app-header>
+
+    <app-drawer id="drawer" swipe-open>
+      <p>
+        Selected code: <span>[[selectedcode.caption]]</span>
+      </p>
+    </app-drawer>
+
+    <div id="contents">
+
+      <iron-pages selected="{{selected}}">
+        <div>
+          <allocations-list
+            selected-code="{{selectedcode}}"
+            filtered-allocations="[[filteredAllocations]]">
+          </allocations-list>
+        </div>
+        <div>
+          <charge-autocomplete
+            selected-code="{{selectedcode}}"
+            filtered-allocations="[[filteredAllocations]]">
+          </charge-autocomplete>
+          <week-entry entries="{{entries}}"></week-entry>
+          <current-charges></current-charges>
+        </div>
+        <div>
+          coming soon!
+        </div>
+      </iron-pages>
+
+
+    </div>
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class EpycorApp {
+        get is() { return 'epycor-app' }
+
+        get observers() {
+          return [ 'selectedcodeChanged(selectedcode)' ];
+        }
+
+        selectedcodeChanged(sc) {
+          this.selected = 1;
+        }
+      }
+
+      Polymer(EpycorApp);
+
+    })();
+  </script>
+</dom-module>

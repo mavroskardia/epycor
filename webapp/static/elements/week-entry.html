@@ -1,0 +1,47 @@
+<dom-module id="week-entry">
+  <template>
+    <style include="shared-styles">
+
+        .day { display: inline-block; }
+
+    </style>
+
+    <div class="day">
+        <div>MON</div>
+        <input type="number" min="0" max="24" size="2" />
+    </div>
+
+    <div class="day">
+        <div>TUES</div>
+        <input type="number" min="0" max="24" size="2" />
+    </div>
+
+    <div class="day">
+        <div>WED</div>
+        <input type="number" min="0" max="24" size="2" />
+    </div>
+
+    <div class="day">
+        <div>THURS</div>
+        <input type="number" min="0" max="24" size="2" />
+    </div>
+
+    <div class="day">
+        <div>FRI</div>
+        <input type="number" min="0" max="24" size="2" />
+    </div>
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class WeekEntry {
+        get is() { return 'week-entry' }
+      }
+
+      Polymer(WeekEntry);
+
+    })();
+  </script>
+</dom-module>

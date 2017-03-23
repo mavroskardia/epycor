@@ -1,0 +1,18 @@
+<dom-module id="current-charges">
+  <template>
+    <style include="shared-styles"></style>
+    <p>current charges</p>
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class CurrentCharges {
+        get is() { return 'current-charges' }
+      }
+
+      Polymer(CurrentCharges);
+
+    })();
+  </script>
+</dom-module>

@@ -1,0 +1,21 @@
+<dom-module id="charge-autocomplete">
+  <template>
+    <style include="shared-styles"></style>
+
+    <paper-typeahead label="Charge code" data-key="caption" data="[[filteredAllocations]]">
+    </paper-typeahead>
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class ChargeAutocomplete {
+        get is() { return 'charge-autocomplete' }
+      }
+
+      Polymer(ChargeAutocomplete);
+
+    })();
+  </script>
+</dom-module>

@@ -1,0 +1,163 @@
+<dom-module id="allocations-list">
+  <template>
+    <style include="shared-styles">
+
+      #msg {
+        margin-top: 3rem;
+      }
+
+      #filterheader {
+        position: fixed;
+        background-color: #fff;
+        z-index: 1;
+        width: 100%;
+        padding: 1rem;
+      }
+
+      em {
+        color: var(--secondary-text-color);
+      }
+
+      strong {
+        display: block;
+      }
+
+      paper-spinner, h2 {
+        display: inline-block;
+        margin-right: 1rem;
+      }
+
+      paper-listbox {
+        padding-top: 9rem;
+      }
+
+      paper-input {
+        width: calc(100% - 2rem);
+      }
+
+    </style>
+
+    <iron-ajax id="ajax"
+      url="/allocations/[[dateRangeInBase64]]"
+      method="get"
+      handle-as="json"
+      loading="{{loading}}"
+      last-response="{{allocations}}">
+    </iron-ajax>
+
+    <div id="msg" hidden="{{!loading}}" class="horizontal layout center center-center">
+      <paper-spinner active></paper-spinner>
+      <em>Retrieving your allocations...</em>
+    </div>
+
+    <div hidden="{{loading}}">
+
+      <paper-material elevation="2" id="filterheader">
+        <span>Showing [[filteredCount]] out of [[allocationCount]] Allocations</span>
+        <paper-input id="filterinput" autofocus value="{{filter}}" label="Filter allocations">
+          <div suffix>
+            <paper-icon-button icon="clear" on-tap="clearFilter">
+            </paper-icon-button>
+          </div>
+        </paper-input>
+      </paper-material>
+
+      <paper-listbox id="codelist" selected="{{selectedIndex}}">
+        <template is="dom-repeat" items="[[filteredAllocations]]">
+          <paper-item>
+            <paper-item-body two-line>
+              <strong>[[item.caption]]</strong>
+              <breadcrumb-display secondary item="[[item]]"></breadcrumb-display>
+            </paper-item-body>
+          </paper-item>
+        </template>
+      </paper-listbox>
+
+    </div>
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class AllocationsList {
+
+        get is() { return 'allocations-list' }
+
+        get properties() {
+          return {
+            selectedCode: {
+              type: Object,
+              notify: true
+            },
+            filteredAllocations: {
+              type: Array,
+              notify: true,
+              computed: 'filterAllocations(filter, allocations)'
+            },
+            allocationCount: {
+              type: Number,
+              computed: 'countAllocations(allocations)'
+            },
+            filteredCount: {
+              type: Number,
+              computed: 'countFiltered(filteredAllocations)'
+            },
+            dateRangeInBase64: {
+              type: String,
+              value: () => 'MTQ5MDkzMjgwMHwxNDg4MzQ0NDAw'
+            }
+          }
+        }
+
+        get observers() {
+          return [ 'selectedIndexChanged(selectedIndex)' ];
+        }
+
+        ready() {
+          // TODO: Add date range encoding
+          this.$.ajax.generateRequest();
+        }
+
+        isValidCode(c) {
+          return c.node_type == 'InternalCode' || c.node_type == 'Task';
+        }
+
+        filterAllocations(filter, allocations) {
+
+          if (!allocations) return [];
+
+          if (!filter || filter === '') {
+            return allocations.filter(this.isValidCode);
+          }
+
+          return allocations
+                  .filter(f => this.isValidCode(f) &&
+                               f.caption.toLowerCase().indexOf(filter) != -1);
+
+        }
+
+        countAllocations() {
+          return this.allocations.filter(this.isValidCode).length;
+        }
+
+        countFiltered(filterAllocations) {
+          return filterAllocations.length;
+        }
+
+        clearFilter() {
+          this.$.filterinput.value = '';
+          this.$.filterinput.focus();
+        }
+
+        selectedIndexChanged(index) {
+          this.selectedCode = this.filteredAllocations[index];
+        }
+
+      }
+
+      Polymer(AllocationsList);
+
+    })();
+  </script>
+</dom-module>

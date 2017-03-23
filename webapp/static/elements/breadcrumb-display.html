@@ -1,0 +1,41 @@
+<dom-module id="breadcrumb-display">
+  <template>
+    <style include="shared-styles">
+
+        small, span {
+            display: inline-block;
+            padding: 0; margin: 0;
+        }
+
+        span {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        small {
+            white-space: nowrap;
+        }
+
+    </style>
+    <template is="dom-repeat" items="[[item.breadcrumb]]">
+        <small>[[item]]</small>
+        <span hidden="[[isLast(index)]]">&rarr;</span>
+    </template>
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class BreadcrumbDisplay {
+        get is() { return 'breadcrumb-display' }
+
+        isLast(index) {
+            return index == this.item.breadcrumb.length - 1;
+        }
+      }
+
+      Polymer(BreadcrumbDisplay);
+
+    })();
+  </script>
+</dom-module>
