@@ -28,7 +28,6 @@ def index():
 
     return render_template('index.html')
 
-
 @app.route('/allocations/<string:dates>')
 def allocations(dates):
     'look for cached allocations and return those, otherwise ask epicor (slow)'
@@ -43,3 +42,18 @@ def allocations(dates):
         cache_allocations(allocations)
 
     return json.dumps(allocations)
+
+
+@app.route('/charges/<string:dates>')
+def charges(dates):
+
+    if not dates:
+        return None, 500
+
+    fromdate, todate = [datetime.fromtimestamp(int(a))
+                        for a in
+                        b64decode(dates.encode()).decode().split('|')]
+
+    charges = epicorsvc.get_time_entries(fromdate, todate)
+
+    return json.dumps(charges)

@@ -1,0 +1,110 @@
+<script src="../bower_components/moment/min/moment.min.js"></script>
+
+<dom-module id="time-entry">
+  <template>
+
+    <style include="shared-styles">
+
+      paper-card, current-charges {
+        margin: 1rem;
+        display: block;
+      }
+
+      charge-autocomplete, week-entry, current-charges {
+        display: block;
+      }
+
+      charge-autocomplete {
+        margin-bottom: 2rem;
+      }
+
+      week-entry {
+        width: 100%;
+      }
+
+    </style>
+
+    <paper-card heading="Add Charges">
+
+      <div class="card-content">
+
+        <charge-autocomplete
+          selected-code="{{selectedcode}}"
+          filtered-allocations="[[filteredAllocations]]">
+        </charge-autocomplete>
+
+        <div class="horizontal layout center center-center">
+          <paper-icon-button icon="chevron-left" on-tap="prevWeek"></paper-icon-button>
+          <week-entry current-date="{{currentDate}}" charges="{{charges}}"></week-entry>
+          <paper-icon-button icon="chevron-right" on-tap="nextWeek"></paper-icon-button>
+        </div>
+
+        <paper-textarea
+          label="Comments"
+          max-rows="3"
+          char-counter="true"
+          maxlength="255">
+        </paper-textarea>
+
+      </div>
+
+      <div class="card-actions">
+        <paper-button>Save</paper-button>
+      </div>
+
+    </paper-card>
+
+    <paper-card heading="Charges for Week [[weekRange(currentDate)]]">
+
+      <div class="card-content">
+        <current-charges current-date="[[currentDate]]"></current-charges>
+      </div>
+
+      <div class="card-actions">
+        <paper-button>Submit for Approval</paper-button>
+        <paper-button>Delete</paper-button>
+      </div>
+
+    </paper-card>
+
+  </template>
+
+  <script>
+    (() => {
+      'use strict';
+
+      class TimeEntry {
+
+        get is() { return 'time-entry' }
+
+        get properties() {
+          return {
+            currentDate: {
+              type: Object,
+              value: () => moment().day(0)
+            }
+          }
+        }
+
+        prevWeek() {
+          this.currentDate = moment(this.currentDate.subtract(1, 'week'));
+        }
+
+        nextWeek() {
+          this.currentDate = moment(this.currentDate.add(1, 'week'));
+        }
+
+        weekRange(date) {
+          let start = moment(date).day(0).format('MM/DD'),
+              end = moment(date).day(6).format('MM/DD');
+
+          return `${start} to ${end}`;
+        }
+
+      }
+
+      Polymer(TimeEntry);
+
+    })();
+  </script>
+</dom-module>

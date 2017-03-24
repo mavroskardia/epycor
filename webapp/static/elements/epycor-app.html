@@ -1,10 +1,16 @@
 <dom-module id="epycor-app">
   <template>
     <style include="shared-styles">
+
       #contents {
         overflow-y: auto;
         height: calc(100vh - 144px);
       }
+
+      paper-tabs {
+        width: 100%;
+      }
+
     </style>
 
     <app-header>
@@ -13,7 +19,7 @@
         <div main-title>Epycor</div>
       </app-toolbar>
       <app-toolbar>
-        <paper-tabs selected="{{selected}}" fallback-selection="0">
+        <paper-tabs selected="{{selected}}">
           <paper-tab>Allocations</paper-tab>
           <paper-tab>Enter Time</paper-tab>
           <paper-tab>Analytics</paper-tab>
@@ -29,24 +35,22 @@
 
     <div id="contents">
 
-      <iron-pages selected="{{selected}}">
-        <div>
-          <allocations-list
-            selected-code="{{selectedcode}}"
-            filtered-allocations="[[filteredAllocations]]">
-          </allocations-list>
-        </div>
-        <div>
-          <charge-autocomplete
-            selected-code="{{selectedcode}}"
-            filtered-allocations="[[filteredAllocations]]">
-          </charge-autocomplete>
-          <week-entry entries="{{entries}}"></week-entry>
-          <current-charges></current-charges>
-        </div>
+      <iron-pages selected="{{selected}}" fallback-selection="1">
+
+        <allocations-list
+          selected-code="{{selectedcode}}"
+          filtered-allocations="{{filteredAllocations}}">
+        </allocations-list>
+
+        <time-entry
+          selected-code="{{selectedcode}}"
+          filtered-allocations="[[filteredAllocations]]">
+        </time-entry>
+
         <div>
           coming soon!
         </div>
+
       </iron-pages>
 
 

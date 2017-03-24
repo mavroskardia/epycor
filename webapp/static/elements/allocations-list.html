@@ -11,8 +11,10 @@
         background-color: #fff;
         z-index: 1;
         width: 100%;
-        padding: 1rem;
       }
+
+      #filterheader > * { margin: 1rem; }
+      #filterheader span { margin-right: 1rem; }
 
       em {
         color: var(--secondary-text-color);
@@ -53,7 +55,15 @@
     <div hidden="{{loading}}">
 
       <paper-material elevation="2" id="filterheader">
-        <span>Showing [[filteredCount]] out of [[allocationCount]] Allocations</span>
+        <div class="horizontal layout">
+          <span class="flex">
+            Showing [[filteredCount]] out of [[allocationCount]] Allocations
+          </span>
+          <div class="horizontal layout">
+            <span>Tree View</span>
+            <paper-toggle-button></paper-toggle-button>
+          </div>
+        </div>
         <paper-input id="filterinput" autofocus value="{{filter}}" label="Filter allocations">
           <div suffix>
             <paper-icon-button icon="clear" on-tap="clearFilter">

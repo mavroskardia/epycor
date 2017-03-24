@@ -1,9 +1,33 @@
 <dom-module id="charge-autocomplete">
   <template>
-    <style include="shared-styles"></style>
+    <style include="shared-styles">
 
-    <paper-typeahead label="Charge code" data-key="caption" data="[[filteredAllocations]]">
-    </paper-typeahead>
+      iron-icon, paper-icon-button {
+        color: #888;
+      }
+
+      paper-typeahead {
+        z-index: 1;
+      }
+
+    </style>
+
+    <div class="horizontal layout center center-center">
+
+      <iron-icon prefix icon="search"></iron-icon>
+
+      <paper-typeahead id="typeahead"
+        class="flex"
+        no-label-float
+        placeholder="Search for a charge code"
+        data-key="caption"
+        data="[[filteredAllocations]]"
+        on-selected="selectCode">
+      </paper-typeahead>
+
+      <paper-icon-button icon="clear"></paper-icon-button>
+
+    </div>
 
   </template>
   <script>
@@ -12,6 +36,24 @@
 
       class ChargeAutocomplete {
         get is() { return 'charge-autocomplete' }
+
+        get properties() {
+          return {
+            selectedCode: {
+              type: Object,
+              notify: true,
+              observer: 'selectedCodeChanged'
+            }
+          };
+        }
+
+        selectedCodeChanged(newsc, oldsc) {
+          this.$.typeahead.value = newsc.caption;
+        }
+
+        selectCode(e, detail) {
+          this.selectedCode = detail.targetResult;
+        }
       }
 
       Polymer(ChargeAutocomplete);

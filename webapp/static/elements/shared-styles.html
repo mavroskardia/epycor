@@ -1,31 +1,37 @@
 <dom-module id="shared-styles">
-    <template>
-        <style>
+  <template>
+    <style>
 
-            :host {
-                --primary-text-color: #444;
-                --secondary-text-color: #aaa;
-                --primary-color: var(--paper-indigo-400);
-                --accent-color: var(--google-grey-500);
+      :host {
+        --primary-text-color: #444;
+        --secondary-text-color: #aaa;
+        --primary-color: var(--paper-indigo-400);
+        --accent-color: var(--google-grey-500);
 
-                --paper-tabs-selection-bar-color: var(--accent-color);
-            }
+        --paper-tabs-selection-bar-color: var(--accent-color);
+        --paper-input-char-counter: {
+          color: var(--secondary-text-color, #aaa);
+        };
 
-            h1, h2, h3, h4, h5, h6 { padding: 0; margin: 0; }
+        --paper-card-header-color: var(--primary-text-color);
+      }
 
-            h1, h2, h3, h4, h5, h6,
-            p, em, strong, span,
-            app-toolbar
-            {
-                font-family: "Noto Sans", "Roboto", sans-serif;
-                color: var(--primary-text-color);
-            }
+      h1, h2, h3, h4, h5, h6 { padding: 0; margin: 0; }
 
-            app-toolbar {
-                color: #fff;
-                background-color: var(--primary-color);
-            }
+      h1, h2, h3, h4, h5, h6,
+      p, em, strong, span, small,
+      paper-input,
+      app-toolbar
+      {
+        font-family: "Noto Sans", "Roboto", sans-serif;
+        color: var(--primary-text-color);
+      }
 
-        </style>
-    </template>
+      app-toolbar {
+        color: #fff;
+        background-color: var(--primary-color);
+      }
+
+    </style>
+  </template>
 </dom-module>

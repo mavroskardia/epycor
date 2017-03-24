@@ -16,6 +16,60 @@ class NavigatorNode(dict):
 		self['node_type'] = node.find('.//NodeType').text
 
 
+class TimeEntry(dict):
+
+	def __init__(self, node):
+		super().__init__()
+
+		self['time_id'] = self.get(node, 'TimeID')
+		self['project_code'] = self.get(node, 'ProjectCode')
+		self['task_uid'] = self.get(node, 'TaskUID')
+		self['activity_code'] = self.get(node, 'ActivityCode')
+		self['resource_id'] = self.get(node, 'ResourceID')
+		self['time_entry_date'] = self.get(node, 'TimeEntryDate')
+		self['status_code'] = self.get(node, 'StatusCode')
+		self['standard_hours'] = self.get(node, 'StandardHours')
+		self['overtime_hours'] = self.get(node, 'OvertimeHours')
+		self['work_comment'] = self.get(node, 'WorkComment')
+		self['status'] = self.get(node, 'Status')
+		self['activity_desc'] = self.get(node, 'ActivityDesc')
+		self['row_check_flag'] = self.get(node, 'RowCheckFlag')
+		self['internal_flag'] = self.get(node, 'InternalFlag')
+		self['original'] = self.get(node, 'Original')
+		self['project_site_urn'] = self.get(node, 'ProjectSiteURN')
+		self['resource_site_urn'] = self.get(node, 'ResourceSiteURN')
+		self['project_customer'] = self.get(node, 'ProjectCustomer')
+		self['project_name'] = self.get(node, 'ProjectName')
+		self['event_code'] = self.get(node, 'EventCode')
+		self['event_status_code'] = self.get(node, 'EventStatusCode')
+		self['status_flag'] = self.get(node, 'StatusFlag')
+		self['create_user_id'] = self.get(node, 'CreateUserID')
+		self['create_date'] = self.get(node, 'CreateDate')
+		self['last_update_user_id'] = self.get(node, 'LastUpdateUserID')
+		self['last_update_date'] = self.get(node, 'LastUpdateDate')
+		self['organization_id'] = self.get(node, 'OrganizationID')
+		self['origin_flag'] = self.get(node, 'OriginFlag')
+		self['resource_long_name'] = self.get(node, 'ResourceLongName')
+		self['unassigned_entry_flag'] = self.get(node, 'UnassignedEntryFlag')
+		self['hours'] = self.get(node, 'Hours')
+		self['work_type_code'] = self.get(node, 'WorkTypeCode')
+		self['loc_required_time_entry_flag'] = self.get(node, 'LocRequiredTimeEntryFlag')
+		self['project_status'] = self.get(node, 'ProjectStatus')
+		self['opportunity_id'] = self.get(node, 'OpportunityID')
+		self['time_entry_comment'] = self.get(node, 'TimeEntryComment')
+		self['task_rule_notes_flag'] = self.get(node, 'TaskRuleNotesFlag')
+		self['project_site_name'] = self.get(node, 'ProjectSiteName')
+		self['avoid_update_site'] = self.get(node, 'AvoidUpdateSite')
+
+	def get(self, node, name):
+
+		e = node.find('.//{}'.format(name))
+		if e is not None:
+			return e.text
+
+		return ''
+
+
 class Epicor:
 
 	def __init__(self, username, password, domain='AD'):
@@ -74,14 +128,18 @@ class Epicor:
 	def get_time_entries(self, fromdate, todate, foruser=None):
 		'Returns the list of time entries between "fromdate" and "todate"'
 
-		entries = self.timeclient.service.GetAllTimeEntries(
+		print('getting time entries from {} to {}'.format(fromdate, todate))
+
+		entries_result = self.timeclient.service.GetAllTimeEntries(
 			self.resourceid, fromdate, todate, fromdate, todate)
 
-		try:
-			return entries.TimeList.Time
-		except Exception as e:
-			print(e)
-			return None
+		doc = entries_result.body.GetAllTimeEntriesResult._value_1
+
+		entries = [TimeEntry(e) for e in doc]
+
+		print('Created', len(entries), 'for that time period')
+
+		return entries
 
 
 if __name__ == '__main__':
@@ -131,7 +189,11 @@ if __name__ == '__main__':
 	elif args.command == 'entries':
 		print('Entries:')
 		for e in epicor.get_time_entries(fom, lom):
-			print('{}\t{}\t{} hours\t{}'.format(e.ProjectName, e.TimeEntryDate, e.StandardHours, e.WorkComment))
+			print('{}\t{}\t{} hours\t{}'.format(
+				e.project_name or e.activity_code,
+				e.time_entry_date,
+				e.standard_hours,
+				e.work_comment))
 	elif args.command == 'allocations':
 		print('Allocations for {}:'.format(resourceid))
 		allocations = epicor.get_allocations(fow, low)

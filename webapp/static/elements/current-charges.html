@@ -1,7 +1,31 @@
 <dom-module id="current-charges">
   <template>
     <style include="shared-styles"></style>
-    <p>current charges</p>
+
+    <iron-ajax
+      auto
+      url="/charges/[[asBase64(currentDate)]]"
+      handle-as="json"
+      last-response="{{charges}}">
+    </iron-ajax>
+
+    <iron-list items="[[charges]]" multi-selection>
+      <template>
+        <paper-icon-item>
+          <iron-icon icon="[[getIcon(item)]]" item-icon></iron-icon>
+          <paper-item-body two-line>
+            <div class="horizontal layout">
+              <span class="flex">[[item.activity_code]]</span>
+              <span>[[item.hours]]</span>
+            </div>
+            <div secondary>
+              <small>[[item.work_comment]]</small>
+            </div>
+          </paper-item-body>
+        </paper-icon-item>
+      </template>
+    </iron-list>
+
   </template>
   <script>
     (() => {
@@ -9,6 +33,28 @@
 
       class CurrentCharges {
         get is() { return 'current-charges' }
+
+        get observers() {
+          return ['chargesChanged(charges)'];
+        }
+
+        chargesChanged(charges) {
+          console.log(`Retrieved ${charges.length} charges`);
+        }
+
+        getIcon(item) {
+          let icons = {
+            'A': 'done',
+            'E': 'flag',
+            'N': 'av:fiber-new'
+          };
+
+          return item.status_code in icons ? icons[item.status_code] : 'bug-report';
+        }
+
+        asBase64(date) {
+          return btoa(moment(date).unix() + '|' + moment(date).day(6).unix());
+        }
       }
 
       Polymer(CurrentCharges);

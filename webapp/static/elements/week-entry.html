@@ -1,34 +1,26 @@
 <dom-module id="week-entry">
   <template>
     <style include="shared-styles">
-
-        .day { display: inline-block; }
-
+      paper-input {
+        text-align: center;
+        font-weight: 600;
+      }
     </style>
 
-    <div class="day">
-        <div>MON</div>
-        <input type="number" min="0" max="24" size="2" />
-    </div>
-
-    <div class="day">
-        <div>TUES</div>
-        <input type="number" min="0" max="24" size="2" />
-    </div>
-
-    <div class="day">
-        <div>WED</div>
-        <input type="number" min="0" max="24" size="2" />
-    </div>
-
-    <div class="day">
-        <div>THURS</div>
-        <input type="number" min="0" max="24" size="2" />
-    </div>
-
-    <div class="day">
-        <div>FRI</div>
-        <input type="number" min="0" max="24" size="2" />
+    <div class="horizontal layout center center-center">
+      <template is="dom-repeat" items="{{charges}}">
+        <div class="vertical layout center flex">
+          <strong>[[toDay(currentDate, index)]]</strong>
+          <small>[[toShort(currentDate, index)]]</small>
+          <paper-input
+            type="number"
+            min="0"
+            max="24"
+            value="{{item.hours}}"
+            no-label-float>
+          </paper-input>
+        </div>
+      </template>
     </div>
 
   </template>
@@ -37,7 +29,42 @@
       'use strict';
 
       class WeekEntry {
+
         get is() { return 'week-entry' }
+
+        get properties() {
+          return {
+            charges: {
+              type: Array,
+              value: () => [
+                { hours: 0 },
+                { hours: 0 },
+                { hours: 0 },
+                { hours: 0 },
+                { hours: 0 },
+                { hours: 0 },
+                { hours: 0 }
+              ]
+            }
+          }
+        }
+
+        get observers() {
+          return ['currentDateChanged(currentDate)'];
+        }
+
+        currentDateChanged(date) {
+          console.log('caught date change to ' + date);
+        }
+
+        toDay(date, index) {
+          return moment(date).add(index, 'days').format('ddd');
+        }
+
+        toShort(date, index) {
+          return moment(date).add(index, 'days').format('MM/DD');
+        }
+
       }
 
       Polymer(WeekEntry);
