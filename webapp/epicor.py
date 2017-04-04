@@ -7,67 +7,99 @@ from zeep.transports import Transport
 from requests_ntlm import HttpNtlmAuth
 
 
-class NavigatorNode(dict):
+class DataNode:
 
 	def __init__(self, node):
-		super().__init__()
-		self['caption'] = node.find('.//Caption').text
-		self['outline'] = node.find('.//OutlineNumber').text
-		self['node_type'] = node.find('.//NodeType').text
 
+		self.action = ''
 
-class TimeEntry(dict):
-
-	def __init__(self, node):
-		super().__init__()
-
-		self['time_id'] = self.get(node, 'TimeID')
-		self['project_code'] = self.get(node, 'ProjectCode')
-		self['task_uid'] = self.get(node, 'TaskUID')
-		self['activity_code'] = self.get(node, 'ActivityCode')
-		self['resource_id'] = self.get(node, 'ResourceID')
-		self['time_entry_date'] = self.get(node, 'TimeEntryDate')
-		self['status_code'] = self.get(node, 'StatusCode')
-		self['standard_hours'] = self.get(node, 'StandardHours')
-		self['overtime_hours'] = self.get(node, 'OvertimeHours')
-		self['work_comment'] = self.get(node, 'WorkComment')
-		self['status'] = self.get(node, 'Status')
-		self['activity_desc'] = self.get(node, 'ActivityDesc')
-		self['row_check_flag'] = self.get(node, 'RowCheckFlag')
-		self['internal_flag'] = self.get(node, 'InternalFlag')
-		self['original'] = self.get(node, 'Original')
-		self['project_site_urn'] = self.get(node, 'ProjectSiteURN')
-		self['resource_site_urn'] = self.get(node, 'ResourceSiteURN')
-		self['project_customer'] = self.get(node, 'ProjectCustomer')
-		self['project_name'] = self.get(node, 'ProjectName')
-		self['event_code'] = self.get(node, 'EventCode')
-		self['event_status_code'] = self.get(node, 'EventStatusCode')
-		self['status_flag'] = self.get(node, 'StatusFlag')
-		self['create_user_id'] = self.get(node, 'CreateUserID')
-		self['create_date'] = self.get(node, 'CreateDate')
-		self['last_update_user_id'] = self.get(node, 'LastUpdateUserID')
-		self['last_update_date'] = self.get(node, 'LastUpdateDate')
-		self['organization_id'] = self.get(node, 'OrganizationID')
-		self['origin_flag'] = self.get(node, 'OriginFlag')
-		self['resource_long_name'] = self.get(node, 'ResourceLongName')
-		self['unassigned_entry_flag'] = self.get(node, 'UnassignedEntryFlag')
-		self['hours'] = self.get(node, 'Hours')
-		self['work_type_code'] = self.get(node, 'WorkTypeCode')
-		self['loc_required_time_entry_flag'] = self.get(node, 'LocRequiredTimeEntryFlag')
-		self['project_status'] = self.get(node, 'ProjectStatus')
-		self['opportunity_id'] = self.get(node, 'OpportunityID')
-		self['time_entry_comment'] = self.get(node, 'TimeEntryComment')
-		self['task_rule_notes_flag'] = self.get(node, 'TaskRuleNotesFlag')
-		self['project_site_name'] = self.get(node, 'ProjectSiteName')
-		self['avoid_update_site'] = self.get(node, 'AvoidUpdateSite')
+		self.TimeID = self.get(node, 'TimeID')
+		self.TimeGUID = self.get(node, 'TimeGUID')
+		self.ProjectCode = self.get(node, 'ProjectCode')
+		self.TaskUID = self.get(node, 'TaskUID')
+		self.ActivityCode = self.get(node, 'ActivityCode')
+		self.ResourceID = self.get(node, 'ResourceID')
+		self.StatusCode = self.get(node, 'StatusCode')
+		self.StandardHours = self.get(node, 'StandardHours')
+		self.OvertimeHours = self.get(node, 'OvertimeHours')
+		self.InvoiceComment = self.get(node, 'InvoiceComment')
+		self.StatusComment = self.get(node, 'StatusComment')
+		self.WorkComment = self.get(node, 'WorkComment')
+		self.Status = self.get(node, 'Status')
+		self.TaskName = self.get(node, 'TaskName')
+		self.ActivityDesc = self.get(node, 'ActivityDesc')
+		self.RowCheckFlag = self.get(node, 'RowCheckFlag')
+		self.InternalFlag = self.get(node, 'InternalFlag')
+		self.OriginalTimeID = self.get(node, 'OriginalTimeID')
+		self.ProjectSiteURN = self.get(node, 'ProjectSiteURN')
+		self.ResourceSiteURN = self.get(node, 'ResourceSiteURN')
+		self.RemoteTimeID = self.get(node, 'RemoteTimeID')
+		self.ProjectCustomer = self.get(node, 'ProjectCustomer')
+		self.TimeTypeCode = self.get(node, 'TimeTypeCode')
+		self.BatchID = self.get(node, 'BatchID')
+		self.ProjectName = self.get(node, 'ProjectName')
+		self.TransactionIndex = self.get(node, 'TransactionIndex')
+		self.EventCode = self.get(node, 'EventCode')
+		self.EventStatusCode = self.get(node, 'EventStatusCode')
+		self.StatusFlag = self.get(node, 'StatusFlag')
+		self.LocationCode = self.get(node, 'LocationCode')
+		self.LocationDesc = self.get(node, 'LocationDesc')
+		self.CreateUserID = self.get(node, 'CreateUserID')
+		self.CreateDate = self.get(node, 'CreateDate')
+		self.LastUpdateUserID = self.get(node, 'LastUpdateUserID')
+		self.LastUpdateDate = self.get(node, 'LastUpdateDate')
+		self.OrganizationID = self.get(node, 'OrganizationID')
+		self.OriginFlag = self.get(node, 'OriginFlag')
+		self.ResourceLongName = self.get(node, 'ResourceLongName')
+		self.Meal = self.get(node, 'Meal')
+		self.Travel = self.get(node, 'Travel')
+		self.UnassignedEntryFlag = self.get(node, 'UnassignedEntryFlag')
+		self.Hours = self.get(node, 'Hours')
+		self.WorkTypeCode = self.get(node, 'WorkTypeCode')
+		self.LocRequiredTimeEntryFlag = self.get(node, 'LocRequiredTimeEntryFlag')
+		self.ProjectStatus = self.get(node, 'ProjectStatus')
+		self.OpportunityID = self.get(node, 'OpportunityID')
+		self.Favorite = self.get(node, 'Favorite')
+		self.TimeEntryComment = self.get(node, 'TimeEntryComment')
+		self.TaskRuleNotesFlag = self.get(node, 'TaskRuleNotesFlag')
+		self.RemoteProjectCode = self.get(node, 'RemoteProjectCode')
+		self.ProjectSiteName = self.get(node, 'ProjectSiteName')
+		self.AvoidUpdateSite = self.get(node, 'AvoidUpdateSite')
 
 	def get(self, node, name):
 
+		if not node:
+			return ''
+
 		e = node.find('.//{}'.format(name))
+
 		if e is not None:
 			return e.text
 
 		return ''
+
+	def as_xml(self):
+		pieces = ['<Time action="{}">'.format(self.action)]
+
+		attribs = vars(self)
+		del attribs['action']
+
+		for v in attribs:
+			pieces.append('<{}>{}</{}>'.format(v, getattr(self, v), v))
+
+		pieces.append('</Time>')
+
+		return ''.join(pieces)
+
+class NavigatorNode:
+
+	def __init__(self, node):
+
+		self.data = DataNode(node.find('.//Data'))
+
+		self['caption'] = self.get(node, 'Caption')
+		self['outline'] = self.get(node, 'OutlineNumber')
+		self['node_type'] = self.get(node, 'NodeType')
 
 
 class Epicor:
@@ -93,6 +125,8 @@ class Epicor:
 		self.timeclient = Client(
 			'http://{}/e4se/Time.asmx?wsdl'.format(epicor_ip),
 			transport=transport)
+
+		import pdb; pdb.set_trace()
 
 		self.psaclient = Client(
 			'http://{}/e4se/PSAClientHelper.asmx?wsdl'.format(epicor_ip),
@@ -120,26 +154,36 @@ class Epicor:
 				fromdate=fromdate.isoformat(),
 				todate=todate.isoformat()))
 
-		doc = allocations_result.body.GetNavigatorResult._value_1
-
-		return [NavigatorNode(a) for a in doc]
+		return [NavigatorNode(node)
+				for node in
+				allocations_result.body.GetNavigatorResult._value_1]
 
 
 	def get_time_entries(self, fromdate, todate, foruser=None):
 		'Returns the list of time entries between "fromdate" and "todate"'
 
-		print('getting time entries from {} to {}'.format(fromdate, todate))
-
 		entries_result = self.timeclient.service.GetAllTimeEntries(
 			self.resourceid, fromdate, todate, fromdate, todate)
 
-		doc = entries_result.body.GetAllTimeEntriesResult._value_1
+		return [DataNode(e)
+			    for e in
+			    entries_result.body.GetAllTimeEntriesResult._value_1]
 
-		entries = [TimeEntry(e) for e in doc]
+	def save_time(self, entries):
+		'''
+			An entry is expected to include the task data, date, hours, and
+		   	comments
+	    '''
 
-		print('Created', len(entries), 'for that time period')
+		etcdoc = '<TimeTaskETCForProject useActionHints="true"/>'
+		pieces = ['<TimeList ProxyResourceId="" useActionHints="true">']
 
-		return entries
+		for entry in entries:
+			pieces.append(make_time(entry).as_xml())
+
+		pieces.append('</TimeList>')
+
+		timelist = ''.join(pieces)
 
 
 if __name__ == '__main__':
@@ -168,8 +212,8 @@ if __name__ == '__main__':
 	epicor = Epicor(username, password)
 
 	now = datetime.datetime.now()
-	fom = datetime.datetime(now.year, now.month, 1)
-	lom = datetime.datetime(now.year, now.month + 1, 1) - datetime.timedelta(1)
+	fom = datetime.datetime(now.year, now.month-1, 1)
+	lom = datetime.datetime(now.year, now.month, 1) - datetime.timedelta(1)
 	fow = datetime.datetime(now.year, now.month, now.day - now.weekday())
 	low = fow + datetime.timedelta(7)
 
@@ -188,12 +232,11 @@ if __name__ == '__main__':
 			print('I store the following password for {}: {}'.format(resourceid, passwd))
 	elif args.command == 'entries':
 		print('Entries:')
+
+		import pdb; pdb.set_trace()
+
 		for e in epicor.get_time_entries(fom, lom):
-			print('{}\t{}\t{} hours\t{}'.format(
-				e.project_name or e.activity_code,
-				e.time_entry_date,
-				e.standard_hours,
-				e.work_comment))
+			print(e.as_xml())
 	elif args.command == 'allocations':
 		print('Allocations for {}:'.format(resourceid))
 		allocations = epicor.get_allocations(fow, low)
@@ -205,4 +248,13 @@ if __name__ == '__main__':
 				print('<Internal>\t{}'.format(a.Data.ActivityCode))
 			elif a.NodeType == 'Task':
 				print('<{}>\t{}'.format(a.Data.ProjectCode, a.Data.TaskName))
+	elif args.command == 'seed':
+		print('Charging one hour to task "MEETINGS" for today...',
+			  end='',
+			  flush=True)
 
+		result = epicor.save_time(now, 'Meetings', )
+
+		import pdb; pdb.set_trace()
+
+		print('done')
