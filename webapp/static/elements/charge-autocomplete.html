@@ -25,7 +25,7 @@
         on-selected="selectCode">
       </paper-typeahead>
 
-      <paper-icon-button icon="clear"></paper-icon-button>
+      <paper-icon-button icon="clear" on-tap="clear"></paper-icon-button>
 
     </div>
 
@@ -53,6 +53,13 @@
 
         selectCode(e, detail) {
           this.selectedCode = detail.targetResult;
+          console.log('selected new code');
+          console.log(this.selectedCode);
+        }
+
+        clear() {
+          this.$.typeahead.value = '';
+          this.$.typeahead.inputElement.focus();
         }
       }
 

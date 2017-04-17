@@ -29,7 +29,7 @@
       <div class="card-content">
 
         <charge-autocomplete
-          selected-code="{{selectedcode}}"
+          selected-code="{{selectedCode}}"
           filtered-allocations="[[filteredAllocations]]">
         </charge-autocomplete>
 
@@ -82,6 +82,10 @@
             currentDate: {
               type: Object,
               value: () => moment().day(0)
+            },
+            selectedCode: {
+              type: Object,
+              notify: true
             }
           }
         }

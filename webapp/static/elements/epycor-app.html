@@ -20,7 +20,7 @@
         <div main-title>Epycor</div>
       </app-toolbar>
       <app-toolbar>
-        <paper-tabs selected="{{selected}}">
+        <paper-tabs selected="{{selected}}" fallback-selection="0">
           <paper-tab>Allocations</paper-tab>
           <paper-tab>Enter Time</paper-tab>
           <paper-tab>Analytics</paper-tab>
@@ -38,19 +38,15 @@
 
       <iron-pages selected="{{selected}}" fallback-selection="0">
 
-        <div>
-          <allocations-list
-            selected-code="{{selectedcode}}"
-            filtered-allocations="{{filteredAllocations}}">
-          </allocations-list>
-        </div>
+        <allocations-list
+          selected-code="{{selectedcode}}"
+          filtered-allocations="{{filteredAllocations}}">
+        </allocations-list>
 
-        <div>
-          <time-entry
-            selected-code="{{selectedcode}}"
-            filtered-allocations="[[filteredAllocations]]">
-          </time-entry>
-        </div>
+        <time-entry
+          selected-code="{{selectedcode}}"
+          filtered-allocations="[[filteredAllocations]]">
+        </time-entry>
 
         <div>
           coming soon!
