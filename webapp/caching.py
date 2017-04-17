@@ -3,6 +3,18 @@ import json
 import keyring
 import datetime
 
+from .epicor import NavigatorNode, DataNode
+
+
+class CustomEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        override = not isinstance(obj, NavigatorNode)
+        override = override and not isinstance(obj, DataNode)
+        if override:
+            return super(CustomEncoder, self).default(obj)
+        return obj.__dict__
+
 
 def load_userid_and_domain_from_cache():
 
@@ -38,126 +50,34 @@ def get_cached_allocations():
         # TODO: provide UI feedback that we are re-caching
         return None, None
 
-    return allocdata['allocations'], allocdata['tree']
-
-
-def transform_allocations(allocations):
-    'walk the flat list and build a structured tree'
-
-    def insert(node, root):
-        depth = root
-
-        for part in node['outline'].split('.'):
-            try:
-                depth = depth[part]
-            except KeyError:
-                depth[part] = node
-
-    root = {}
-
-    for allocation in allocations:
-        insert(allocation, root)
-
-    return root
+    return allocdata['allocations']
 
 
 def cache_allocations(allocs):
 
-    tree = transform_allocations(allocs)
-
     obj = {
-        'allocations': add_breadcrumbs(allocs, tree),
-        'tree': tree,
+        'allocations': add_breadcrumbs(allocs),
         'date': datetime.datetime.now().timestamp()
     }
 
     with open('allocations.json', 'w') as f:
-        json.dump(obj, f)
+        json.dump(obj, f, cls=CustomEncoder)
 
     return True
 
 
-def add_breadcrumbs(allocs, tree):
+def add_breadcrumbs(allocs):
 
-    newallocs = []
+    # basic thought is to order the allocations by outline
+    # which ought to mean just going back one in the index to
+    # find any given node's parent
+    allocs = sorted(allocs, key=lambda alloc: alloc.outline)
 
-    for a in allocs:
-        breadcrumb = []
-        outline_parts = a['outline'].split('.')
-        node = tree
+    for idx, alloc in enumerate(allocs):
+        alloc.breadcrumb = list(reversed(
+            [allocs[idx-i].caption
+             for i,v in
+             enumerate(alloc.outline.split('.'))
+             if i != 0 and not alloc.outline.startswith('1')])) # skip self and internal
 
-        # no need to breadcrumb a toplevel node
-        if len(outline_parts) == 1:
-            continue
-
-        for op in outline_parts:
-            node = node[op]
-
-            # don't add self to breadcrumb!
-            if node['outline'] == a['outline']:
-                break
-
-            breadcrumb.append(node['caption'])
-
-        a['breadcrumb'] = breadcrumb
-        newallocs.append(a)
-
-    return newallocs
-
-
-if __name__ == '__main__':
-
-    allocs = [
-        {'outline': '1', 'caption': 'Internal Activities'},
-        {'outline': '1.1', 'caption': 'Meetings'},
-        {'outline': '1.2', 'caption': 'Bereavment'},
-        {'outline': '2', 'caption': '1107'},
-        {'outline': '2.1', 'caption': 'Labor'},
-        {'outline': '2.1.1', 'caption': 'Task 1'},
-        {'outline': '2.1.2', 'caption': 'Task 2'},
-        {'outline': '2.2', 'caption': 'Planning'},
-        {'outline': '2.2.1', 'caption': 'Proposals'},
-    ]
-
-    tree = {
-        '1': {
-            'caption': 'Internal Activities',
-            'outline': '1',
-            '1': {
-                'caption': 'Meetings',
-                'outline': '1.1'
-            },
-            '2': {
-                'caption': 'Bereavment',
-                'outline': '1.2'
-            }
-        },
-        '2': {
-            'caption': '1107',
-            'outline': '2',
-            '1': {
-                'caption': 'Labor',
-                'outline': '2.1',
-                '1': {
-                    'caption': 'Task 1',
-                    'outline': '2.1.1'
-                },
-                '2': {
-                    'caption': 'Task 2',
-                    'outline': '2.1.2'
-                }
-            },
-            '2': {
-                'caption': 'Planning',
-                'outline': '2.2',
-                '1': {
-                    'caption': 'Proposals',
-                    'outline': '2.2.1'
-                }
-            }
-        }
-    }
-
-    newallocs = add_breadcrumbs(allocs, tree)
-
-    import pdb; pdb.set_trace()
+    return allocs

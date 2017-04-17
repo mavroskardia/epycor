@@ -2,10 +2,23 @@ import socket
 import requests
 import datetime
 
+from copy import copy
+
 from zeep import Client
 from zeep.transports import Transport
 from requests_ntlm import HttpNtlmAuth
 
+def get(node, name):
+
+	if not node:
+		return ''
+
+	e = node.find('.//{}'.format(name))
+
+	if e is not None:
+		return e.text
+
+	return ''
 
 class DataNode:
 
@@ -13,93 +26,81 @@ class DataNode:
 
 		self.action = ''
 
-		self.TimeID = self.get(node, 'TimeID')
-		self.TimeGUID = self.get(node, 'TimeGUID')
-		self.ProjectCode = self.get(node, 'ProjectCode')
-		self.TaskUID = self.get(node, 'TaskUID')
-		self.ActivityCode = self.get(node, 'ActivityCode')
-		self.ResourceID = self.get(node, 'ResourceID')
-		self.StatusCode = self.get(node, 'StatusCode')
-		self.StandardHours = self.get(node, 'StandardHours')
-		self.OvertimeHours = self.get(node, 'OvertimeHours')
-		self.InvoiceComment = self.get(node, 'InvoiceComment')
-		self.StatusComment = self.get(node, 'StatusComment')
-		self.WorkComment = self.get(node, 'WorkComment')
-		self.Status = self.get(node, 'Status')
-		self.TaskName = self.get(node, 'TaskName')
-		self.ActivityDesc = self.get(node, 'ActivityDesc')
-		self.RowCheckFlag = self.get(node, 'RowCheckFlag')
-		self.InternalFlag = self.get(node, 'InternalFlag')
-		self.OriginalTimeID = self.get(node, 'OriginalTimeID')
-		self.ProjectSiteURN = self.get(node, 'ProjectSiteURN')
-		self.ResourceSiteURN = self.get(node, 'ResourceSiteURN')
-		self.RemoteTimeID = self.get(node, 'RemoteTimeID')
-		self.ProjectCustomer = self.get(node, 'ProjectCustomer')
-		self.TimeTypeCode = self.get(node, 'TimeTypeCode')
-		self.BatchID = self.get(node, 'BatchID')
-		self.ProjectName = self.get(node, 'ProjectName')
-		self.TransactionIndex = self.get(node, 'TransactionIndex')
-		self.EventCode = self.get(node, 'EventCode')
-		self.EventStatusCode = self.get(node, 'EventStatusCode')
-		self.StatusFlag = self.get(node, 'StatusFlag')
-		self.LocationCode = self.get(node, 'LocationCode')
-		self.LocationDesc = self.get(node, 'LocationDesc')
-		self.CreateUserID = self.get(node, 'CreateUserID')
-		self.CreateDate = self.get(node, 'CreateDate')
-		self.LastUpdateUserID = self.get(node, 'LastUpdateUserID')
-		self.LastUpdateDate = self.get(node, 'LastUpdateDate')
-		self.OrganizationID = self.get(node, 'OrganizationID')
-		self.OriginFlag = self.get(node, 'OriginFlag')
-		self.ResourceLongName = self.get(node, 'ResourceLongName')
-		self.Meal = self.get(node, 'Meal')
-		self.Travel = self.get(node, 'Travel')
-		self.UnassignedEntryFlag = self.get(node, 'UnassignedEntryFlag')
-		self.Hours = self.get(node, 'Hours')
-		self.WorkTypeCode = self.get(node, 'WorkTypeCode')
-		self.LocRequiredTimeEntryFlag = self.get(node, 'LocRequiredTimeEntryFlag')
-		self.ProjectStatus = self.get(node, 'ProjectStatus')
-		self.OpportunityID = self.get(node, 'OpportunityID')
-		self.Favorite = self.get(node, 'Favorite')
-		self.TimeEntryComment = self.get(node, 'TimeEntryComment')
-		self.TaskRuleNotesFlag = self.get(node, 'TaskRuleNotesFlag')
-		self.RemoteProjectCode = self.get(node, 'RemoteProjectCode')
-		self.ProjectSiteName = self.get(node, 'ProjectSiteName')
-		self.AvoidUpdateSite = self.get(node, 'AvoidUpdateSite')
-
-	def get(self, node, name):
-
-		if not node:
-			return ''
-
-		e = node.find('.//{}'.format(name))
-
-		if e is not None:
-			return e.text
-
-		return ''
+		self.ActivityCode = get(node, 'ActivityCode')
+		self.ActivityDesc = get(node, 'ActivityDesc')
+		self.AvoidUpdateSite = get(node, 'AvoidUpdateSite')
+		self.BatchID = get(node, 'BatchID')
+		self.CreateDate = get(node, 'CreateDate')
+		self.CreateUserID = get(node, 'CreateUserID')
+		self.EventCode = get(node, 'EventCode')
+		self.EventStatusCode = get(node, 'EventStatusCode')
+		self.Favorite = get(node, 'Favorite')
+		self.Hours = get(node, 'Hours')
+		self.InternalFlag = get(node, 'InternalFlag')
+		self.InvoiceComment = get(node, 'InvoiceComment')
+		self.LastUpdateDate = get(node, 'LastUpdateDate')
+		self.LastUpdateUserID = get(node, 'LastUpdateUserID')
+		self.LocationCode = get(node, 'LocationCode')
+		self.LocationDesc = get(node, 'LocationDesc')
+		self.LocRequiredTimeEntryFlag = get(node, 'LocRequiredTimeEntryFlag')
+		self.Meal = get(node, 'Meal')
+		self.OpportunityID = get(node, 'OpportunityID')
+		self.OrganizationID = get(node, 'OrganizationID')
+		self.OriginalTimeID = get(node, 'OriginalTimeID')
+		self.OriginFlag = get(node, 'OriginFlag')
+		self.OvertimeHours = get(node, 'OvertimeHours')
+		self.ProjectCode = get(node, 'ProjectCode')
+		self.ProjectCustomer = get(node, 'ProjectCustomer')
+		self.ProjectName = get(node, 'ProjectName')
+		self.ProjectSiteName = get(node, 'ProjectSiteName')
+		self.ProjectSiteURN = get(node, 'ProjectSiteURN')
+		self.ProjectStatus = get(node, 'ProjectStatus')
+		self.RemoteProjectCode = get(node, 'RemoteProjectCode')
+		self.RemoteTimeID = get(node, 'RemoteTimeID')
+		self.ResourceID = get(node, 'ResourceID')
+		self.ResourceLongName = get(node, 'ResourceLongName')
+		self.ResourceSiteURN = get(node, 'ResourceSiteURN')
+		self.RowCheckFlag = get(node, 'RowCheckFlag')
+		self.StandardHours = get(node, 'StandardHours')
+		self.Status = get(node, 'Status')
+		self.StatusCode = get(node, 'StatusCode')
+		self.StatusComment = get(node, 'StatusComment')
+		self.StatusFlag = get(node, 'StatusFlag')
+		self.TaskName = get(node, 'TaskName')
+		self.TaskRuleNotesFlag = get(node, 'TaskRuleNotesFlag')
+		self.TaskUID = get(node, 'TaskUID')
+		self.TimeEntryComment = get(node, 'TimeEntryComment')
+		self.TimeEntryDate = get(node, 'TimeEntryDate')
+		self.TimeGUID = get(node, 'TimeGUID')
+		self.TimeID = get(node, 'TimeID')
+		self.TimeTypeCode = get(node, 'TimeTypeCode')
+		self.TransactionIndex = get(node, 'TransactionIndex')
+		self.Travel = get(node, 'Travel')
+		self.UnassignedEntryFlag = get(node, 'UnassignedEntryFlag')
+		self.WorkComment = get(node, 'WorkComment')
+		self.WorkTypeCode = get(node, 'WorkTypeCode')
 
 	def as_xml(self):
 		pieces = ['<Time action="{}">'.format(self.action)]
 
-		attribs = vars(self)
-		del attribs['action']
-
-		for v in attribs:
-			pieces.append('<{}>{}</{}>'.format(v, getattr(self, v), v))
+		pieces.extend(['<{}>{}</{}>'.format(v, getattr(self, v), v)
+					   for v in vars(self)
+					   if v != 'action'])
 
 		pieces.append('</Time>')
 
 		return ''.join(pieces)
 
+
 class NavigatorNode:
 
 	def __init__(self, node):
 
+		self.caption = get(node, 'Caption')
 		self.data = DataNode(node.find('.//Data'))
-
-		self['caption'] = self.get(node, 'Caption')
-		self['outline'] = self.get(node, 'OutlineNumber')
-		self['node_type'] = self.get(node, 'NodeType')
+		self.node_type = get(node, 'NodeType')
+		self.outline = get(node, 'OutlineNumber')
+		self.breadcrumb = ''
 
 
 class Epicor:
@@ -126,7 +127,7 @@ class Epicor:
 			'http://{}/e4se/Time.asmx?wsdl'.format(epicor_ip),
 			transport=transport)
 
-		import pdb; pdb.set_trace()
+		# import pdb; pdb.set_trace()
 
 		self.psaclient = Client(
 			'http://{}/e4se/PSAClientHelper.asmx?wsdl'.format(epicor_ip),
@@ -166,28 +167,69 @@ class Epicor:
 			self.resourceid, fromdate, todate, fromdate, todate)
 
 		return [DataNode(e)
-			    for e in
+				for e in
 			    entries_result.body.GetAllTimeEntriesResult._value_1]
 
-	def save_time(self, entries):
-		'''
-			An entry is expected to include the task data, date, hours, and
-		   	comments
-	    '''
+	def save_time(self, when=None, what=None, hours=None, comments=None):
+
+		if not when or not what or not hours or not comments:
+			# TODO: handle this more gracefully
+			return
+
+		def make_time(entry):
+			time = copy(entry.data)
+			time.action = 'newmodified'
+			time.Hours = hours
+			time.OvertimeHours = '0'
+			time.ProjectSiteName = 'E4SE'
+			time.ProjectSiteURN = 'E4SE'
+			time.ResourceID = self.resourceid
+			time.ResourceSiteURN = 'E4SE'
+			time.StandardHours = hours
+			time.Status = 'New'
+			time.StatusCode = 'N'
+			time.TimeEntryDate = when
+			time.WorkComment = comments
+
+			if time.ActivityCode:
+				time.TaskUID = '-1'
+				time.ProjectCode = 'Internal Activities'
+				time.ActivityDesc = entry.caption
+				time.InternalFlag = '1'
+				time.UnassignedEntryFlag = '0'
+				time.WorkTypeCode = '0'
+				time.LocRequiredTimeEntryFlag = '0'
+				time.TaskRuleNotesFlag = '0'
+
+			return time
 
 		etcdoc = '<TimeTaskETCForProject useActionHints="true"/>'
+		timesvc = self.timeclient.service
+
 		pieces = ['<TimeList ProxyResourceId="" useActionHints="true">']
 
-		for entry in entries:
-			pieces.append(make_time(entry).as_xml())
+		for entry in what:
+			time = make_time(entry)
+			pieces.append(time.as_xml())
 
 		pieces.append('</TimeList>')
 
 		timelist = ''.join(pieces)
 
+		import pdb; pdb.set_trace()
+
+		try:
+			result = timesvc.UpdateTimeAndTaskETCForTimeEntry(timelist, etcdoc)
+		except:
+			import pdb; pdb.set_trace()
+			print('failed to update time')
+
+		print(result)
+
 
 if __name__ == '__main__':
 
+	import sys
 	import argparse
 	import datetime
 
@@ -245,15 +287,31 @@ if __name__ == '__main__':
 			if not hasattr(a, 'Data'):
 				continue
 			if a.NodeType.startswith('Internal'):
-				print('<Internal>\t{}'.format(a.Data.ActivityCode))
+				print('<Internal>\t{}'.format(a.data.ActivityCode))
 			elif a.NodeType == 'Task':
-				print('<{}>\t{}'.format(a.Data.ProjectCode, a.Data.TaskName))
+				print('<{}>\t{}'.format(a.data.ProjectCode, a.data.TaskName))
 	elif args.command == 'seed':
+
+		print('Retrieving allocations...', end='', flush=True)
+		allocations = epicor.get_allocations(fow, low)
+		print('done.\nLooking for MEETINGS...', end='', flush=True)
+		meetings = [a for a in allocations if a.data.ActivityCode == 'MEETINGS']
+
+		if not meetings:
+			print('failed to find MEETINGS.\n')
+			sys.exit(1)
+
+		print('done')
+
 		print('Charging one hour to task "MEETINGS" for today...',
 			  end='',
 			  flush=True)
 
-		result = epicor.save_time(now, 'Meetings', )
+		result = epicor.save_time(
+			when=now,
+			what=meetings,
+			hours=1,
+			comments='Testing saving time')
 
 		import pdb; pdb.set_trace()
 

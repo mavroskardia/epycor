@@ -15,11 +15,11 @@
           <iron-icon icon="[[getIcon(item)]]" item-icon></iron-icon>
           <paper-item-body two-line>
             <div class="horizontal layout">
-              <span class="flex">[[item.activity_code]]</span>
-              <span>[[item.hours]]</span>
+              <span class="flex">[[item.ActivityCode]]</span>
+              <span>[[item.Hours]]</span>
             </div>
             <div secondary>
-              <small>[[item.work_comment]]</small>
+              <small>[[item.WorkComment]]</small>
             </div>
           </paper-item-body>
         </paper-icon-item>
@@ -49,7 +49,7 @@
             'N': 'av:fiber-new'
           };
 
-          return item.status_code in icons ? icons[item.status_code] : 'bug-report';
+          return item.StatusCode in icons ? icons[item.StatusCode] : 'bug-report';
         }
 
         asBase64(date) {

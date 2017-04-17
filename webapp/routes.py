@@ -6,7 +6,7 @@ from flask import Flask, render_template, g
 
 from .epicor import Epicor
 from .caching import (load_cached_credentials, get_cached_allocations,
-                      cache_allocations)
+                      cache_allocations, CustomEncoder)
 
 
 epicorsvc = Epicor(*load_cached_credentials())
@@ -32,7 +32,7 @@ def index():
 def allocations(dates):
     'look for cached allocations and return those, otherwise ask epicor (slow)'
 
-    allocations, treeallocs = get_cached_allocations()
+    allocations = get_cached_allocations()
 
     if not allocations:
         fromdate, todate = [datetime.fromtimestamp(int(a))
@@ -41,7 +41,7 @@ def allocations(dates):
         allocations = epicorsvc.get_allocations(fromdate, todate)
         cache_allocations(allocations)
 
-    return json.dumps(allocations)
+    return json.dumps(allocations, cls=CustomEncoder)
 
 
 @app.route('/charges/<string:dates>')
@@ -56,4 +56,4 @@ def charges(dates):
 
     charges = epicorsvc.get_time_entries(fromdate, todate)
 
-    return json.dumps(charges)
+    return json.dumps(charges, cls=CustomEncoder)

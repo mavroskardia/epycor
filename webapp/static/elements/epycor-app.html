@@ -36,17 +36,21 @@
 
     <div id="contents">
 
-      <iron-pages selected="{{selected}}" fallback-selection="1">
+      <iron-pages selected="{{selected}}" fallback-selection="0">
 
-        <allocations-list
-          selected-code="{{selectedcode}}"
-          filtered-allocations="{{filteredAllocations}}">
-        </allocations-list>
+        <div>
+          <allocations-list
+            selected-code="{{selectedcode}}"
+            filtered-allocations="{{filteredAllocations}}">
+          </allocations-list>
+        </div>
 
-        <time-entry
-          selected-code="{{selectedcode}}"
-          filtered-allocations="[[filteredAllocations]]">
-        </time-entry>
+        <div>
+          <time-entry
+            selected-code="{{selectedcode}}"
+            filtered-allocations="[[filteredAllocations]]">
+          </time-entry>
+        </div>
 
         <div>
           coming soon!
