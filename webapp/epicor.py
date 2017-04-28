@@ -1,9 +1,13 @@
+import sys
 import socket
 import requests
 import datetime
 
 from copy import copy
+from itertools import zip_longest
 
+from dateutil.relativedelta import relativedelta
+from dateutil.parser import parse
 from zeep import Client
 from zeep.transports import Transport
 from requests_ntlm import HttpNtlmAuth
@@ -96,11 +100,30 @@ class NavigatorNode:
 
 	def __init__(self, node):
 
+		self.breadcrumb = ''
+
 		self.caption = get(node, 'Caption')
-		self.data = DataNode(node.find('.//Data'))
 		self.node_type = get(node, 'NodeType')
 		self.outline = get(node, 'OutlineNumber')
-		self.breadcrumb = ''
+
+		datanode = node.find('.//Data') if node else None
+
+		self.data = DataNode(datanode)
+
+
+	@classmethod
+	def fromdict(cls, d):
+
+		node = NavigatorNode(None)
+
+		for key in d:
+			if key == 'data':
+				for datakey in d[key]:
+					setattr(node.data, datakey, d[key][datakey])
+			else:
+				setattr(node, key, d[key])
+
+		return node
 
 
 class Epicor:
@@ -176,19 +199,25 @@ class Epicor:
 			# TODO: handle this more gracefully
 			return
 
-		def make_time(entry):
+		if isinstance(what, dict):
+			what = [NavigatorNode.fromdict(what)]
+
+		if isinstance(when, str):
+			when = parse(when)
+
+		def make_time(entry, when, numhours):
 			time = copy(entry.data)
 			time.action = 'newmodified'
-			time.Hours = hours
+			time.Hours = numhours
 			time.OvertimeHours = '0'
 			time.ProjectSiteName = 'E4SE'
 			time.ProjectSiteURN = 'E4SE'
 			time.ResourceID = self.resourceid
 			time.ResourceSiteURN = 'E4SE'
-			time.StandardHours = hours
+			time.StandardHours = numhours
 			time.Status = 'New'
 			time.StatusCode = 'N'
-			time.TimeEntryDate = when
+			time.TimeEntryDate = when.strftime('%Y-%m-%d')
 			time.WorkComment = comments
 
 			if time.ActivityCode:
@@ -208,15 +237,21 @@ class Epicor:
 
 		pieces = ['<TimeList ProxyResourceId="" useActionHints="true">']
 
-		for entry in what:
-			time = make_time(entry)
+		entries_hours = zip_longest(hours, what, fillvalue=what[0])
+		days_entries_hours = enumerate(entries_hours)
+
+		for daynum, (numhours, entry) in days_entries_hours:
+			numhours = int(numhours.get('hours', 0))
+			if numhours <= 0:
+				continue
+			whendt = when + relativedelta(days=daynum)
+			print('charging {} hours to {}'.format(numhours, whendt))
+			time = make_time(entry, whendt, numhours)
 			pieces.append(time.as_xml())
 
 		pieces.append('</TimeList>')
 
 		timelist = ''.join(pieces)
-
-		import pdb; pdb.set_trace()
 
 		try:
 			result = timesvc.UpdateTimeAndTaskETCForTimeEntry(timelist, etcdoc)
@@ -225,6 +260,18 @@ class Epicor:
 			print('failed to update time')
 
 		print(result)
+
+	def delete_time(self, what=None):
+
+		if not what:
+			return None
+
+		entry = copy(what.data)
+		entry.action = 'deleted'
+		entry.StatusCode = 'N'
+		entry.Status = 'Entered'
+		entry.TimeGUID = ''
+		entry.AvoidUpdateSite = '0'
 
 
 if __name__ == '__main__':

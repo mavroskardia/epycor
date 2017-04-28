@@ -38,7 +38,7 @@ def load_cached_credentials():
 def get_cached_allocations():
 
     if not os.path.exists('allocations.json'):
-        return None, None
+        return None
 
     with open('allocations.json') as f:
         allocdata = json.load(f)
@@ -48,7 +48,7 @@ def get_cached_allocations():
 
     if delta.days > 3:
         # TODO: provide UI feedback that we are re-caching
-        return None, None
+        return None
 
     return allocdata['allocations']
 

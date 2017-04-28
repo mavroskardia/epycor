@@ -4,12 +4,16 @@
 
       #contents {
         overflow-y: auto;
-        height: calc(100vh - 144px);
+        height: calc(100vh - 64px);
         background-color: #f3f3f3;
       }
 
       paper-tabs {
         width: 100%;
+      }
+
+      app-drawer {
+        z-index: 10;
       }
 
     </style>
@@ -19,24 +23,20 @@
         <paper-icon-button icon="menu" onclick="drawer.toggle()"></paper-icon-button>
         <div main-title>Epycor</div>
       </app-toolbar>
-      <app-toolbar>
-        <paper-tabs selected="{{selected}}" fallback-selection="0">
-          <paper-tab>Allocations</paper-tab>
-          <paper-tab>Enter Time</paper-tab>
-          <paper-tab>Analytics</paper-tab>
-        </paper-tabs>
-      </app-toolbar>
     </app-header>
 
     <app-drawer id="drawer" swipe-open>
-      <p>
-        Selected code: <span>[[selectedcode.caption]]</span>
-      </p>
+      <strong>Selected: <span>[[selected]]</span></strong>
+      <paper-menu selected="{{selected}}">
+        <paper-item>Allocations</paper-item>
+        <paper-item>Enter Time</paper-item>
+        <paper-item>Analytics</paper-item>
+      </paper-menu>
     </app-drawer>
 
     <div id="contents">
 
-      <iron-pages selected="{{selected}}" fallback-selection="0">
+      <iron-pages selected="{{selected}}">
 
         <allocations-list
           selected-code="{{selectedcode}}"
@@ -67,6 +67,15 @@
 
         get observers() {
           return [ 'selectedcodeChanged(selectedcode)' ];
+        }
+
+        get properties() {
+          return {
+            selected: {
+              type: Number,
+              value: () => 1
+            }
+          }
         }
 
         selectedcodeChanged(sc) {

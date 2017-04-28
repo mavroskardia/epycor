@@ -1,18 +1,42 @@
 <dom-module id="current-charges">
   <template>
-    <style include="shared-styles"></style>
+    <style include="shared-styles">
+
+      iron-list {
+        height: 34vh;
+      }
+
+      .approved { color: #0f0; }
+      .entered { color: #00f; }
+      .new { color: #f00; }
+
+      .selected { font-weight: bold; }
+
+    </style>
 
     <iron-ajax
+      id="ajax"
       auto
       url="/charges/[[asBase64(currentDate)]]"
       handle-as="json"
       last-response="{{charges}}">
     </iron-ajax>
 
-    <iron-list items="[[charges]]" multi-selection>
+    <iron-list
+      id="chargesList"
+      items="[[charges]]"
+      selected-items="{{selectedCharges}}"
+      selection-enabled
+      multi-selection>
       <template>
-        <paper-icon-item>
-          <iron-icon icon="[[getIcon(item)]]" item-icon></iron-icon>
+        <paper-icon-item class$="[[_computeSelected(selected)]]">
+          <div class="horizontal layout" item-icon>
+            <iron-icon
+              icon="[[getIcon(item)]]"
+              item-icon
+              class$="[[getIconClass(item)]]">
+            </iron-icon>
+          </div>
           <paper-item-body two-line>
             <div class="horizontal layout">
               <span class="flex">[[item.ActivityCode]]</span>
@@ -34,12 +58,19 @@
       class CurrentCharges {
         get is() { return 'current-charges' }
 
-        get observers() {
-          return ['chargesChanged(charges)'];
+        get properties() {
+          return {
+            selectedCharges: {
+              type: Array,
+              notify: true
+            }
+          };
         }
 
-        chargesChanged(charges) {
-          console.log(`Retrieved ${charges.length} charges`);
+        regenerate() {
+          let date = this.asBase64(this.currentDate);
+          this.$.ajax.url = `/charges/${date}`;
+          this.$.ajax.generateRequest();
         }
 
         getIcon(item) {
@@ -52,8 +83,24 @@
           return item.StatusCode in icons ? icons[item.StatusCode] : 'bug-report';
         }
 
+        getIconClass(item) {
+          let classes = {
+            'A': 'approved',
+            'E': 'entered',
+            'N': 'new'
+          };
+
+          return item.StatusCode in classes ? classes[item.StatusCode] : '';
+        }
+
         asBase64(date) {
-          return btoa(moment(date).unix() + '|' + moment(date).day(6).unix());
+          let start = moment(date).day(0).hour(0).minute(0).unix();
+          let end = moment(date).day(6).hour(23).minute(59).unix();
+          return btoa(start + '|' + end);
+        }
+
+        _computeSelected(selected) {
+          return selected ? 'selected' : '';
         }
       }
 
