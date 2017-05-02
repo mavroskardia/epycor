@@ -95,6 +95,16 @@ class DataNode:
 
 		return ''.join(pieces)
 
+	@classmethod
+	def fromdict(cls, d):
+
+		node = DataNode(None)
+
+		for key in d:
+			setattr(node, key, d[key])
+
+		return node
+
 
 class NavigatorNode:
 
@@ -118,8 +128,7 @@ class NavigatorNode:
 
 		for key in d:
 			if key == 'data':
-				for datakey in d[key]:
-					setattr(node.data, datakey, d[key][datakey])
+				node.data = DataNode.fromdict(d[key])
 			else:
 				setattr(node, key, d[key])
 
@@ -186,6 +195,9 @@ class Epicor:
 	def get_time_entries(self, fromdate, todate, foruser=None):
 		'Returns the list of time entries between "fromdate" and "todate"'
 
+		fromdate = fromdate.date()
+		todate = todate.date()
+
 		entries_result = self.timeclient.service.GetAllTimeEntries(
 			self.resourceid, fromdate, todate, fromdate, todate)
 
@@ -245,7 +257,6 @@ class Epicor:
 			if numhours <= 0:
 				continue
 			whendt = when + relativedelta(days=daynum)
-			print('charging {} hours to {}'.format(numhours, whendt))
 			time = make_time(entry, whendt, numhours)
 			pieces.append(time.as_xml())
 
@@ -253,25 +264,36 @@ class Epicor:
 
 		timelist = ''.join(pieces)
 
-		try:
-			result = timesvc.UpdateTimeAndTaskETCForTimeEntry(timelist, etcdoc)
-		except:
-			import pdb; pdb.set_trace()
-			print('failed to update time')
+		return timesvc.UpdateTimeAndTaskETCForTimeEntry(timelist, etcdoc)
 
-		print(result)
 
-	def delete_time(self, what=None):
+	def delete_time(self, tasks):
+		'tasks generally will come in as a list of dicts'
 
-		if not what:
+		if not tasks:
 			return None
 
-		entry = copy(what.data)
-		entry.action = 'deleted'
-		entry.StatusCode = 'N'
-		entry.Status = 'Entered'
-		entry.TimeGUID = ''
-		entry.AvoidUpdateSite = '0'
+		entries = [DataNode.fromdict(t) for t in tasks]
+
+		etcdoc = '<TimeTaskETCForProject useActionHints="true"/>'
+		timesvc = self.timeclient.service
+
+		pieces = ['<TimeList ProxyResourceId="" useActionHints="true">']
+
+		for entry in entries:
+			entry.ResourceID = self.resourceid
+			entry.action = 'deleted'
+			entry.StatusCode = 'N'
+			entry.Status = 'Entered'
+			entry.TimeGUID = ''
+			entry.AvoidUpdateSite = '0'
+			pieces.append(entry.as_xml())
+
+		pieces.append('</TimeList>')
+
+		timelist = ''.join(pieces)
+
+		return timesvc.UpdateTimeAndTaskETCForTimeEntry(timelist, etcdoc)
 
 
 if __name__ == '__main__':

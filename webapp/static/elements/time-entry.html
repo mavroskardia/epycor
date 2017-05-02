@@ -29,8 +29,19 @@
       method="post"
       handle-as="json"
       content-type="application/json"
+      on-response="respond"
+      on-error="respondToError">
+    </iron-ajax>
+
+    <iron-ajax id="timeDeleteAjax"
+      url="/deletetime"
+      method="post"
+      handle-as="json"
+      content-type="application/json"
       on-response="respond">
     </iron-ajax>
+
+    <paper-toast id="toast"></paper-toast>
 
     <paper-card heading="Add Charges">
 
@@ -131,11 +142,23 @@
         }
 
         delete() {
-          debugger;
+
+          this.$.timeDeleteAjax.body = {
+            tasks: this.selectedCharges
+          };
+
+          this.$.timeDeleteAjax.generateRequest();
+
         }
 
         respond() {
           this.$.currentCharges.regenerate();
+        }
+
+        respondToError(event, detail) {
+          this.$.toast.show({
+            text: event.detail.request.xhr.response.message
+          });
         }
 
       }

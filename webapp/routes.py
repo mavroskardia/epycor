@@ -58,7 +58,10 @@ def charges(dates):
 
     charges = epicorsvc.get_time_entries(fromdate, todate)
 
+    print(charges)
+
     return json.dumps(charges, cls=CustomEncoder), 200
+
 
 @app.route('/entertime', methods=['POST'])
 def entertime():
@@ -70,11 +73,31 @@ def entertime():
     charges = data.get('charges')
     date = data.get('date')
 
-    epicorsvc.save_time(
-        when=date,
-        what=task,
-        hours=charges,
-        comments=comments
-    )
+    try:
+
+        epicorsvc.save_time(
+            when=date,
+            what=task,
+            hours=charges,
+            comments=comments
+        )
+
+    except Exception as e:
+        return json.dumps({'message':e.message}), 500
+
+    return '', 200
+
+
+@app.route('/deletetime', methods=['POST'])
+def deletetime():
+
+    data = json.loads(request.get_data())
+
+    tasks = data.get('tasks')
+
+    try:
+        epicorsvc.delete_time(tasks)
+    except Exception as e:
+        return json.dumps({'message':e.message}), 500
 
     return '', 200
