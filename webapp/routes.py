@@ -83,6 +83,7 @@ def entertime():
         )
 
     except Exception as e:
+        import pdb; pdb.set_trace()
         return json.dumps({'message':e.message}), 500
 
     return '', 200

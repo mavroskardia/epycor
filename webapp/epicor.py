@@ -221,6 +221,7 @@ class Epicor:
 			time = copy(entry.data)
 			time.action = 'newmodified'
 			time.Hours = numhours
+			time.InternalFlag = '0'
 			time.OvertimeHours = '0'
 			time.ProjectSiteName = 'E4SE'
 			time.ProjectSiteURN = 'E4SE'
@@ -264,6 +265,8 @@ class Epicor:
 
 		timelist = ''.join(pieces)
 
+		import pdb; pdb.set_trace()
+
 		return timesvc.UpdateTimeAndTaskETCForTimeEntry(timelist, etcdoc)
 
 
@@ -287,6 +290,33 @@ class Epicor:
 			entry.Status = 'Entered'
 			entry.TimeGUID = ''
 			entry.AvoidUpdateSite = '0'
+			pieces.append(entry.as_xml())
+
+		pieces.append('</TimeList>')
+
+		timelist = ''.join(pieces)
+
+		return timesvc.UpdateTimeAndTaskETCForTimeEntry(timelist, etcdoc)
+
+
+	def mark_for_approval(self, tasks):
+
+		if not tasks:
+			return None
+
+		entries = [DataNode.fromdict(t) for t in tasks]
+
+		etcdoc = '<TimeTaskETCForProject useActionHints="true"/>'
+		timesvc = self.timeclient.service
+
+		pieces = ['<TimeList ProxyResourceId="" useActionHints="true">']
+
+		for entry in entries:
+			entry.ResourceID = self.resourceid
+			entry.action = 'modified'
+			entry.StatusCode = 'E'
+			entry.Status = 'Ready for Approval'
+			entry.TimeGUID = ''
 			pieces.append(entry.as_xml())
 
 		pieces.append('</TimeList>')

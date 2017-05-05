@@ -19,6 +19,7 @@
       auto
       url="/charges/[[asBase64(currentDate)]]"
       handle-as="json"
+      on-response="animate"
       last-response="{{charges}}">
     </iron-ajax>
 
@@ -39,7 +40,7 @@
           </div>
           <paper-item-body two-line>
             <div class="horizontal layout">
-              <span class="flex">[[item.ActivityCode]]</span>
+              <span class="flex">[[getItemTitle(item)]]</span>
               <span>[[item.Hours]]</span>
             </div>
             <div secondary>
@@ -58,13 +59,38 @@
       class CurrentCharges {
         get is() { return 'current-charges' }
 
+        get behaviors() {
+          return [
+            Polymer.NeonAnimationRunnerBehavior
+          ];
+        }
+
         get properties() {
           return {
             selectedCharges: {
               type: Array,
               notify: true
+            },
+            animationConfig: {
+              value: function () {
+                return {
+                  'cool': [{
+                    name: 'cascaded-animation',
+                    animation: 'fade-in-animation'
+                  }]
+                };
+              }
             }
+
           };
+        }
+
+        animate() {
+          this.async(() => {
+            let items = Polymer.dom(this.root).querySelectorAll('paper-icon-item');
+            this.animationConfig['cool'][0].nodes = items;
+            this.playAnimation('cool');
+          });
         }
 
         regenerate() {
@@ -91,6 +117,10 @@
           };
 
           return item.StatusCode in classes ? classes[item.StatusCode] : '';
+        }
+
+        getItemTitle(item) {
+          return item.ActivityCode ? item.ActivityCode : item.TaskName;
         }
 
         asBase64(date) {

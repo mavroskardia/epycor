@@ -22,6 +22,10 @@
         width: 100%;
       }
 
+      paper-dialog h2 {
+        padding: 1rem;
+      }
+
     </style>
 
     <iron-ajax id="timeSubmitAjax"
@@ -90,6 +94,16 @@
 
     </paper-card>
 
+    <paper-dialog id="deleteConfirmDialog"
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation">
+      <h2>Delete [[selectedCharges.length]] Entries?</h2>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="performDelete">Delete</paper-button>
+      </div>
+    </paper-dialog>
+
   </template>
 
   <script>
@@ -142,6 +156,10 @@
         }
 
         delete() {
+          this.$.deleteConfirmDialog.open();
+        }
+
+        performDelete() {
 
           this.$.timeDeleteAjax.body = {
             tasks: this.selectedCharges
