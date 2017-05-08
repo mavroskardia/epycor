@@ -75,7 +75,10 @@
         </paper-input>
       </paper-material>
 
-      <iron-list id="codelist" items="[[filteredAllocations]]" selected-item="{{selectedIndex}}">
+      <iron-list id="codelist"
+        items="[[filteredAllocations]]"
+        selection-enabled
+        selected-item="{{selectedCode}}">
         <template>
           <paper-item>
             <paper-item-body two-line="[[item.breadcrumb]]">
@@ -127,10 +130,6 @@
           }
         }
 
-        get observers() {
-          return [ 'selectedIndexChanged(selectedIndex)' ];
-        }
-
         ready() {
           // TODO: Add date range encoding
           this.$.ajax.generateRequest();
@@ -165,11 +164,6 @@
         clearFilter() {
           this.$.filterinput.value = '';
           this.$.filterinput.focus();
-        }
-
-        selectedIndexChanged(index) {
-          if (!index) return;
-          this.selectedCode = this.filteredAllocations[index];
         }
 
       }

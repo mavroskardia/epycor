@@ -48,6 +48,7 @@
         }
 
         selectedCodeChanged(newsc, oldsc) {
+          if (!newsc) return;
           this.$.typeahead.value = newsc.caption;
         }
 

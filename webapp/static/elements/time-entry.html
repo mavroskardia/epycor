@@ -37,6 +37,15 @@
       on-error="respondToError">
     </iron-ajax>
 
+    <iron-ajax id="markForApprovalAjax"
+      url="/markforapproval"
+      method="post"
+      handle-as="json"
+      content-type="application/json"
+      on-response="respond"
+      on-error="respondToError">
+    </iron-ajax>
+
     <iron-ajax id="timeDeleteAjax"
       url="/deletetime"
       method="post"
@@ -88,7 +97,7 @@
       </div>
 
       <div class="card-actions">
-        <paper-button>Submit for Approval</paper-button>
+        <paper-button on-tap="markForApproval">Submit for Approval</paper-button>
         <paper-button on-tap="delete">Delete</paper-button>
       </div>
 
@@ -166,6 +175,16 @@
           };
 
           this.$.timeDeleteAjax.generateRequest();
+
+        }
+
+        markForApproval() {
+
+          this.$.markForApprovalAjax.body = {
+            tasks: this.selectedCharges
+          };
+
+          this.$.markForApprovalAjax.generateRequest();
 
         }
 

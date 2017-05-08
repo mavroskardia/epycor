@@ -102,3 +102,20 @@ def deletetime():
         return json.dumps({'message':e.message}), 500
 
     return '', 200
+
+
+@app.route('/markforapproval', methods=['POST'])
+def markforapproval():
+
+    data = json.loads(request.get_data())
+
+    tasks = data.get('tasks')
+
+    try:
+        epicorsvc.mark_for_approval(tasks)
+    except Exception as e:
+        return json.dumps({'message':e.message}), 500
+
+    return '', 200
+
+

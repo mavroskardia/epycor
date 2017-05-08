@@ -26,7 +26,6 @@
     </app-header>
 
     <app-drawer id="drawer" swipe-open>
-      <strong>Selected: <span>[[selected]]</span></strong>
       <paper-menu selected="{{selected}}">
         <paper-item>Allocations</paper-item>
         <paper-item>Enter Time</paper-item>
@@ -65,7 +64,10 @@
         get is() { return 'epycor-app' }
 
         get observers() {
-          return [ 'selectedcodeChanged(selectedcode)' ];
+          return [
+            'selectedcodeChanged(selectedcode)',
+            'selectedChanged(selected)'
+          ];
         }
 
         get properties() {
@@ -75,6 +77,10 @@
               value: () => 1
             }
           }
+        }
+
+        selectedChanged(s) {
+          this.$.drawer.close();
         }
 
         selectedcodeChanged(sc) {

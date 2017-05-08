@@ -6,10 +6,6 @@
         height: 34vh;
       }
 
-      .approved { color: #0f0; }
-      .entered { color: #00f; }
-      .new { color: #f00; }
-
       .selected { font-weight: bold; }
 
     </style>
@@ -31,13 +27,8 @@
       multi-selection>
       <template>
         <paper-icon-item class$="[[_computeSelected(selected)]]">
-          <div class="horizontal layout" item-icon>
-            <iron-icon
-              icon="[[getIcon(item)]]"
-              item-icon
-              class$="[[getIconClass(item)]]">
-            </iron-icon>
-          </div>
+          <charge-item-display charge="[[item]]" item-icon>
+          </charge-item-display>
           <paper-item-body two-line>
             <div class="horizontal layout">
               <span class="flex">[[getItemTitle(item)]]</span>
@@ -97,26 +88,6 @@
           let date = this.asBase64(this.currentDate);
           this.$.ajax.url = `/charges/${date}`;
           this.$.ajax.generateRequest();
-        }
-
-        getIcon(item) {
-          let icons = {
-            'A': 'check-circle',
-            'E': 'flag',
-            'N': 'av:fiber-new'
-          };
-
-          return item.StatusCode in icons ? icons[item.StatusCode] : 'bug-report';
-        }
-
-        getIconClass(item) {
-          let classes = {
-            'A': 'approved',
-            'E': 'entered',
-            'N': 'new'
-          };
-
-          return item.StatusCode in classes ? classes[item.StatusCode] : '';
         }
 
         getItemTitle(item) {

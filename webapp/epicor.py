@@ -265,8 +265,6 @@ class Epicor:
 
 		timelist = ''.join(pieces)
 
-		import pdb; pdb.set_trace()
-
 		return timesvc.UpdateTimeAndTaskETCForTimeEntry(timelist, etcdoc)
 
 
