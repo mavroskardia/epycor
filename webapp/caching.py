@@ -16,10 +16,41 @@ class CustomEncoder(json.JSONEncoder):
         return obj.__dict__
 
 
+def clear_credentials():
+
+    username, domain = load_userid_and_domain_from_cache()
+    os.remove('creds.json')
+    keyring.get_keyring().delete_password('epicor', username)
+
+
+def store_credentials(username, password, domain):
+
+    kr = keyring.get_keyring()
+
+    try:
+        kr.set_password('epicor', username, password)
+
+        with open('creds.json', 'w') as f:
+            json.dump({
+                'userid': username,
+                'domain': domain
+            }, f)
+    except Exception as e:
+        os.remove('creds.json')
+        kr.delete_password('epicor', username)
+        raise e
+
+
 def load_userid_and_domain_from_cache():
+
+    if not os.path.exists('creds.json'):
+        return None, None
 
     with open('creds.json') as f:
         creds = json.load(f)
+
+    if not 'userid' in creds or not 'domain' in creds:
+        return None, None
 
     return creds['userid'], creds['domain']
 
@@ -28,6 +59,9 @@ def load_cached_credentials():
 
     # "userid" instead of "username" to match Epicor naming scheme.
     userid, domain = load_userid_and_domain_from_cache()
+
+    if not userid:
+        return None, None, None
 
     # see https://pypi.python.org/pypi/keyring for why this is safe
     password = keyring.get_password('epicor', userid)

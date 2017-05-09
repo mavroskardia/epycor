@@ -3,16 +3,16 @@
     <style>
 
       :host {
-        --primary-text-color: #444;
+        --primary-text-color: #424242;
         --secondary-text-color: #aaa;
-        --primary-color: var(--paper-indigo-400);
-        --accent-color: var(--google-grey-500);
+        --primary-color: #3299bb;
+        --accent-color: #bb9932;
 
         --paper-tabs-selection-bar-color: var(--accent-color);
         --paper-card-header-color: var(--primary-text-color);
 
         --paper-input-char-counter: {
-          color: var(--secondary-text-color, #aaa);
+          color: #aaa;
         };
 
         --paper-typeahead-result-selected: {
@@ -42,6 +42,14 @@
       paper-icon-item,
       paper-item {
         cursor: pointer;
+      }
+
+      paper-input [prefix] {
+        margin-right: 0.5rem;
+      }
+
+      .card-actions {
+        text-align: right;
       }
 
     </style>

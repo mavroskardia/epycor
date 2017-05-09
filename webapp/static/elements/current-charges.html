@@ -2,11 +2,33 @@
   <template>
     <style include="shared-styles">
 
-      iron-list {
-        height: 34vh;
+      :host {
+        --paper-item-body-two-line-min-height: 60px;
+      };
+
+      iron-list { max-height: 28vh; }
+
+      .selected {
+        background-color: #a9eaff;
       }
 
-      .selected { font-weight: bold; }
+      .red { color: #900; }
+      .green { color: #4BB543; }
+
+      .totals {
+        font-size: 60%;
+        color: #666;
+        margin-top: -2rem;
+        margin-bottom: 1rem;
+      }
+
+      .totals div {
+        margin-right: 1rem;
+      }
+
+      paper-icon-item {
+        min-height: 0;
+      }
 
     </style>
 
@@ -18,6 +40,41 @@
       on-response="animate"
       last-response="{{charges}}">
     </iron-ajax>
+
+    <div class="horizontal layout totals">
+      <div class="vertical layout center">
+        <span>Sunday</span>
+        <strong class$="[[colorCodeHours(charges.0)]]">[[charges.0.Hours]]</strong>
+      </div>
+      <div class="vertical layout center">
+        <span>Monday</span>
+        <strong>1.00</strong>
+      </div>
+      <div class="vertical layout center">
+        <span>Tuesday</span>
+        <strong>3.00</strong>
+      </div>
+      <div class="vertical layout center">
+        <span>Wednesday</span>
+        <strong>2.00</strong>
+      </div>
+      <div class="vertical layout center">
+        <span>Thursday</span>
+        <strong>5.00</strong>
+      </div>
+      <div class="vertical layout center">
+        <span>Friday</span>
+        <strong>8.00</strong>
+      </div>
+      <div class="vertical layout center">
+        <span>Saturday</span>
+        <strong>1.00</strong>
+      </div>
+      <div class="vertical layout center">
+        <span>Week Total</span>
+        <strong>12.00</strong>
+      </div>
+    </div>
 
     <iron-list
       id="chargesList"
@@ -32,7 +89,7 @@
           <paper-item-body two-line>
             <div class="horizontal layout">
               <span class="flex">[[getItemTitle(item)]]</span>
-              <span>[[item.Hours]]</span>
+              <strong>[[item.Hours]]</strong>
             </div>
             <div secondary>
               <small>[[item.WorkComment]]</small>
@@ -98,6 +155,10 @@
           let start = moment(date).day(0).hour(0).minute(0).unix();
           let end = moment(date).day(6).hour(23).minute(59).unix();
           return btoa(start + '|' + end);
+        }
+
+        colorCodeHours(h) {
+          return h != 8 ? 'red' : 'green';
         }
 
         _computeSelected(selected) {

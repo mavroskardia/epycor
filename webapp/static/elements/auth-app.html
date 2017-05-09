@@ -1,0 +1,89 @@
+<dom-module id="auth-app">
+  <template>
+    <style include="shared-styles">
+
+      small {
+        display: block;
+        font-size: 60%;
+        font-style: oblique;
+        font-weight: normal;
+      }
+
+      paper-material {
+        width: 75%;
+        margin: 10rem auto;
+        padding: 2rem;
+        background-color: #fff;
+      }
+
+      paper-button {
+        margin-top: 1rem;
+      }
+
+    </style>
+
+    <iron-ajax id="ajax"
+      url="/storecreds"
+      method="post"
+      content-type="application/json"
+      handle-as="json"
+      on-response="respond">
+    </iron-ajax>
+
+    <paper-material class="vertical layout center self-center center-center">
+      <h2>
+        <iron-icon icon="lock"></iron-icon>
+        Please enter your credentials to continue.
+        <small>You only have to do this once.</small>
+      </h2>
+      <paper-input type="text" id="username" label="Enter your AD username" autofocus>
+        <div prefix><iron-icon icon="face"></iron-icon></div>
+      </paper-input>
+      <paper-input type="text" id="domain" label="Enter your AD domain">
+        <div prefix><iron-icon icon="chrome-reader-mode"></iron-icon></div>
+      </paper-input>
+      <paper-input type="password" id="password" label="Enter your password">
+        <div prefix><iron-icon icon="communication:vpn-key"></iron-icon></div>
+      </paper-input>
+
+      <paper-button on-tap="storeCreds">Save Credentials</paper-button>
+
+    </paper-material>
+
+    <paper-dialog id="instructionsDialog"
+      modal with-backdrop
+      entry-animation="scale-up-animation">
+      <p>
+        Your credentials were updated successfully.
+        Please restart Epycor to continue.
+      </p>
+    </paper-dialog>
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class AuthApp {
+        get is() { return 'auth-app' }
+
+        storeCreds() {
+          this.$.ajax.body = {
+            username: this.$.username.value,
+            domain: this.$.domain.value,
+            password: this.$.password.value
+          };
+
+          this.$.ajax.generateRequest();
+        }
+
+        respond(e, detail) {
+          this.$.instructionsDialog.open();
+        }
+      }
+
+      Polymer(AuthApp);
+
+    })();
+  </script>
+</dom-module>

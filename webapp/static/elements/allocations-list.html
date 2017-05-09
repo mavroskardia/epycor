@@ -6,16 +6,11 @@
         margin-top: 3rem;
       }
 
-      #filterheader {
-        position: fixed;
+      .filterheader {
         background-color: #fff;
-        z-index: 1;
-        width: 100%;
-        height: 9rem;
+        padding: 1rem;
+        height: 6rem;
       }
-
-      #filterheader > * { margin: 1rem; }
-      #filterheader span { margin-right: 1rem; }
 
       em {
         color: var(--secondary-text-color);
@@ -31,9 +26,7 @@
       }
 
       iron-list {
-        position: relative;
-        top: 9rem;
-        height: calc(100% - 9rem - 64px);
+        height: 79vh;
       }
 
       paper-input {
@@ -57,15 +50,15 @@
 
     <div hidden="{{loading}}">
 
-      <paper-material elevation="2" id="filterheader">
+      <paper-material elevation="2" class="filterheader">
         <div class="horizontal layout">
           <span class="flex">
             Showing [[filteredCount]] out of [[allocationCount]] Allocations
           </span>
-          <div class="horizontal layout">
+          <!-- <div class="horizontal layout">
             <span>Tree View</span>
             <paper-toggle-button></paper-toggle-button>
-          </div>
+          </div> -->
         </div>
         <paper-input id="filterinput" autofocus value="{{filter}}" label="Filter allocations">
           <div suffix>
@@ -147,9 +140,13 @@
             return allocations.filter(this.isValidCode);
           }
 
-          return allocations
-                  .filter(f => this.isValidCode(f) &&
-                               f.caption.toLowerCase().indexOf(filter) != -1);
+          filter = filter.toLowerCase();
+
+          let isMatch = (a) => this.isValidCode(a) &&
+                               (a.caption.toLowerCase().indexOf(filter) != -1 ||
+                                a.breadcrumb.some(b => b.indexOf(filter)));
+
+          return allocations.filter(isMatch);
 
         }
 

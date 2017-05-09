@@ -6,7 +6,7 @@
     <style include="shared-styles">
 
       paper-card, current-charges {
-        margin: 1rem;
+        margin: 1rem 1rem 0rem 1rem;
         display: block;
       }
 
@@ -15,7 +15,7 @@
       }
 
       charge-autocomplete {
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
       }
 
       week-entry {
@@ -56,52 +56,62 @@
 
     <paper-toast id="toast"></paper-toast>
 
-    <paper-card heading="Add Charges">
+    <div class="vertical layout">
 
-      <div class="card-content">
+      <paper-card heading="Add Charges">
 
-        <charge-autocomplete
-          selected-code="{{selectedCode}}"
-          filtered-allocations="[[filteredAllocations]]">
-        </charge-autocomplete>
+        <div class="card-content">
 
-        <div class="horizontal layout center center-center">
-          <paper-icon-button icon="chevron-left" on-tap="prevWeek"></paper-icon-button>
-          <week-entry current-date="{{currentDate}}" charges="{{charges}}"></week-entry>
-          <paper-icon-button icon="chevron-right" on-tap="nextWeek"></paper-icon-button>
+          <charge-autocomplete
+            selected-code="{{selectedCode}}"
+            filtered-allocations="[[filteredAllocations]]">
+          </charge-autocomplete>
+
+          <div class="horizontal layout center center-center">
+            <paper-icon-button icon="chevron-left" on-tap="prevWeek"></paper-icon-button>
+            <week-entry current-date="{{currentDate}}" charges="{{charges}}"></week-entry>
+            <paper-icon-button icon="chevron-right" on-tap="nextWeek"></paper-icon-button>
+          </div>
+
+          <paper-textarea id="comments"
+            label="Comments"
+            max-rows="3"
+            char-counter="true"
+            maxlength="255">
+          </paper-textarea>
+
         </div>
 
-        <paper-textarea id="comments"
-          label="Comments"
-          max-rows="3"
-          char-counter="true"
-          maxlength="255">
-        </paper-textarea>
+        <div class="card-actions">
+          <paper-button on-tap="save" disabled="[[!readyForSave]]">
+            Save
+          </paper-button>
+        </div>
 
-      </div>
+      </paper-card>
 
-      <div class="card-actions">
-        <paper-button on-tap="save">Save</paper-button>
-      </div>
+      <paper-card class="flex" heading="Charges for Week [[weekRange(currentDate)]]">
 
-    </paper-card>
+        <div class="card-content">
+          <current-charges
+            id="currentCharges"
+            selected-charges="{{selectedCharges}}"
+            current-date="[[currentDate]]">
+          </current-charges>
+        </div>
 
-    <paper-card heading="Charges for Week [[weekRange(currentDate)]]">
+        <div class="card-actions">
+          <paper-button on-tap="markForApproval" disabled="[[!selectedCharges.length]]">
+            Submit for Approval
+          </paper-button>
+          <paper-button on-tap="delete" disabled="[[!selectedCharges.length]]">
+            Delete
+          </paper-button>
+        </div>
 
-      <div class="card-content">
-        <current-charges
-          id="currentCharges"
-          selected-charges="{{selectedCharges}}"
-          current-date="[[currentDate]]">
-        </current-charges>
-      </div>
+      </paper-card>
 
-      <div class="card-actions">
-        <paper-button on-tap="markForApproval">Submit for Approval</paper-button>
-        <paper-button on-tap="delete">Delete</paper-button>
-      </div>
-
-    </paper-card>
+    </div>
 
     <paper-dialog id="deleteConfirmDialog"
       entry-animation="scale-up-animation"
@@ -136,6 +146,12 @@
           }
         }
 
+        get observers() {
+          return [
+            'chargesOrCodeChanged(charges.*, selectedCode)'
+          ]
+        }
+
         prevWeek() {
           this.currentDate = moment(this.currentDate.subtract(1, 'week'));
         }
@@ -149,6 +165,11 @@
               end = moment(date).day(6).format('MM/DD');
 
           return `${start} to ${end}`;
+        }
+
+        chargesOrCodeChanged(charges, selectedCode) {
+          this.readyForSave = !!selectedCode &&
+                              charges.base.some(c => c.hours > 0);
         }
 
         save() {

@@ -3,7 +3,7 @@
     <style include="shared-styles">
 
       #contents {
-        overflow-y: auto;
+        overflow: hidden;
         height: calc(100vh - 64px);
         background-color: #f3f3f3;
       }
@@ -16,7 +16,25 @@
         z-index: 10;
       }
 
+      paper-dialog h2 {
+        padding: 1rem;
+      }
+
+      .sidebar {
+        height: 90vh;
+      }
+
     </style>
+
+    <iron-ajax id="clearCredsAjax"
+      url="/clearcreds"
+      on-response="credsCleared">
+    </iron-ajax>
+
+    <paper-dialog id="restartDialog"
+      modal with-backdrop>
+      <p>Credentials cleared successfully, please restart the application.</p>
+    </paper-dialog>
 
     <app-header>
       <app-toolbar>
@@ -26,11 +44,35 @@
     </app-header>
 
     <app-drawer id="drawer" swipe-open>
-      <paper-menu selected="{{selected}}">
-        <paper-item>Allocations</paper-item>
-        <paper-item>Enter Time</paper-item>
-        <paper-item>Analytics</paper-item>
-      </paper-menu>
+      <app-toolbar>Menu</app-toolbar>
+
+      <div class="vertical layout sidebar">
+        <paper-menu selected="{{selected}}" class="flex">
+          <paper-icon-item>
+            <iron-icon item-icon icon="assignment"></iron-icon>
+            <paper-item-body>Allocations</paper-item-body>
+          </paper-icon-item>
+          <paper-icon-item>
+            <iron-icon item-icon icon="schedule"></iron-icon>
+            <paper-item-body>Enter Time</paper-item-body>
+          </paper-icon-item>
+          <paper-icon-item>
+            <iron-icon item-icon icon="dashboard"></iron-icon>
+            <paper-item-body>Analytics</paper-item-body>
+          </paper-icon-item>
+        </paper-menu>
+
+        <paper-button on-tap="clearAuth">Clear Credentials</paper-button>
+
+        <paper-dialog id="clearConfirm">
+          <p>Are you sure you want to clear your saved credentials?</p>
+          <div class="buttons">
+            <paper-button on-tap="clearCreds">Confirm</paper-button>
+            <paper-button dialog-dismiss>Cancel</paper-button>
+          </div>
+        </paper-dialog>
+      </div>
+
     </app-drawer>
 
     <div id="contents">
@@ -84,9 +126,21 @@
         }
 
         selectedcodeChanged(sc) {
-          console.log('selected code changed');
           this.selected = 1;
         }
+
+        clearAuth() {
+          this.$.clearConfirm.open();
+        }
+
+        clearCreds() {
+          this.$.clearCredsAjax.generateRequest();
+        }
+
+        credsCleared() {
+          this.$.restartDialog.open();
+        }
+
       }
 
       Polymer(EpycorApp);

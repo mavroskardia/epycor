@@ -10,6 +10,17 @@
         z-index: 1;
       }
 
+      breadcrumb-display {
+        display: block;
+        margin: 0 auto;
+        margin-top: -0.5rem;
+        width: calc(100% - 2rem);
+        font-size: 70%;
+        overflow: hidden;
+        min-height: 30px;
+        line-height: 0.5rem;
+      }
+
     </style>
 
     <div class="horizontal layout center center-center">
@@ -28,6 +39,8 @@
       <paper-icon-button icon="clear" on-tap="clear"></paper-icon-button>
 
     </div>
+
+    <breadcrumb-display item="[[selectedCode]]"></breadcrumb-display>
 
   </template>
   <script>
@@ -61,6 +74,7 @@
         clear() {
           this.$.typeahead.value = '';
           this.$.typeahead.inputElement.focus();
+          this.selectedCode = undefined;
         }
       }
 

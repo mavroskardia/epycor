@@ -32,7 +32,8 @@ def run_gui(application):
 
     webview = QWebEngineView()
     webview.load(QUrl(ROOT_URL))
-    webview.resize(1000,1000)
+    webview.resize(800,1000)
+    webview.setMinimumSize(800, 1000)
     webview.show()
 
     return qtapp.exec_()

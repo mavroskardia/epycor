@@ -1,0 +1,61 @@
+<dom-module id="charge-item-display">
+  <template>
+    <style include="shared-styles">
+
+      .approved { color: #4BB543; } /* http://www.colourlovers.com/color/4BB543/Success_Green */
+      .entered { color: #16B7FF; }
+      .new { color: #9BAAB3; }
+
+    </style>
+
+    <div class="vertical layout center">
+        <div class="date-display">
+            <strong>[[shortDate(charge)]]</strong>
+        </div>
+        <iron-icon
+          icon="[[getIcon(charge)]]"
+          item-icon
+          class$="[[getIconClass(charge)]]">
+        </iron-icon>
+    </div>
+
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class ChargeItemDisplay {
+        get is() { return 'charge-item-display' }
+
+        getIcon(item) {
+          let icons = {
+            'A': 'check-circle',
+            'E': 'flag',
+            'N': 'av:fiber-new'
+          };
+
+          return item.StatusCode in icons ? icons[item.StatusCode] : 'bug-report';
+        }
+
+        getIconClass(item) {
+          let classes = {
+            'A': 'approved',
+            'E': 'entered',
+            'N': 'new'
+          };
+
+          return item.StatusCode in classes ? classes[item.StatusCode] : '';
+        }
+
+        shortDate(item) {
+          return moment(item.TimeEntryDate).format('M/D');
+        }
+
+      }
+
+      Polymer(ChargeItemDisplay);
+
+    })();
+  </script>
+</dom-module>

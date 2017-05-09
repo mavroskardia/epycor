@@ -135,6 +135,9 @@ class NavigatorNode:
 		return node
 
 
+class NoCredentialsException(Exception):
+	pass
+
 class Epicor:
 
 	def __init__(self, username, password, domain='AD'):
@@ -142,6 +145,11 @@ class Epicor:
 			username and password are required to access NTLM authenticated
 			epicor services
 		'''
+
+		self.are_credentials_loaded = username and password and domain
+
+		if not self.are_credentials_loaded:
+			return
 
 		try:
 			epicor_ip = socket.gethostbyname('epicor')

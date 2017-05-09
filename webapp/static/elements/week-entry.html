@@ -1,17 +1,44 @@
 <dom-module id="week-entry">
   <template>
     <style include="shared-styles">
-      paper-input {
+
+      strong, small {
         text-align: center;
+        width: 2.5rem;
+        padding: 2px;
+      }
+
+      strong {
+        border: solid 1px var(--primary-color);
+        background-color: var(--primary-color);
+        color: #fff;
+      }
+
+      paper-input {
+        text-align: right;
         font-weight: 600;
       }
+
+      .container:first-child strong,
+      .container:last-child strong {
+        background-color: #ddd;
+        border-color: #ddd;
+        color: #888;
+      }
+
+      .container:first-child small {
+        border-color: #ddd;
+      }
+
     </style>
 
-    <div class="horizontal layout center center-center">
+    <div id="container" class="horizontal layout center center-center">
       <template is="dom-repeat" items="{{charges}}">
-        <div class="vertical layout center flex">
-          <strong>[[toDay(currentDate, index)]]</strong>
-          <small>[[toShort(currentDate, index)]]</small>
+        <div class="vertical layout center flex container">
+          <header class="vertical layout center">
+            <strong>[[toDay(currentDate, index)]]</strong>
+            <small>[[toShort(currentDate, index)]]</small>
+          </header>
           <paper-input
             type="number"
             min="0"
@@ -63,7 +90,7 @@
         }
 
         toShort(date, index) {
-          return moment(date).add(index, 'days').format('MM/DD');
+          return moment(date).add(index, 'days').format('M/D');
         }
 
       }

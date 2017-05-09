@@ -7,7 +7,8 @@ from flask import Flask, render_template, g, request
 
 from .epicor import Epicor
 from .caching import (load_cached_credentials, get_cached_allocations,
-                      cache_allocations, CustomEncoder)
+                      clear_credentials, store_credentials, cache_allocations,
+                      CustomEncoder)
 
 
 epicorsvc = Epicor(*load_cached_credentials())
@@ -27,7 +28,56 @@ def add_no_caching(resp):
 @app.route('/')
 def index():
 
+    if not epicorsvc.are_credentials_loaded:
+        return render_template('getcreds.html')
+
     return render_template('index.html')
+
+
+@app.route('/clearcreds')
+def clearcreds():
+
+    try:
+        clear_credentials()
+    except Exception as e:
+        return json.dumps({
+            'error': True,
+            'message': e.message
+        })
+
+    return json.dumps({
+        'error': False,
+        'message': 'Successfully cleared credentials'
+    })
+
+
+@app.route('/storecreds', methods=['POST'])
+def storecreds():
+
+    data = json.loads(request.get_data())
+
+    username = data.get('username')
+    password = data.get('password')
+    domain = data.get('domain')
+
+    if not username or not password or not domain:
+        return json.dumps({
+            'error': True,
+            'message': 'You have to enter all three fields'
+        })
+
+    try:
+        store_credentials(username, password, domain)
+    except Exception as e:
+        return json.dumps({
+            'error': True,
+            'message': e.message
+        })
+
+    return json.dumps({
+        'error': False,
+        'message': 'Successfully stored credentials'
+    })
 
 
 @app.route('/allocations/<string:dates>')
