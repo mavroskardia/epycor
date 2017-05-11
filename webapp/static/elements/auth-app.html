@@ -39,9 +39,9 @@
       <paper-input type="text" id="username" label="Enter your AD username" autofocus>
         <div prefix><iron-icon icon="face"></iron-icon></div>
       </paper-input>
-      <paper-input type="text" id="domain" label="Enter your AD domain">
+<!--       <paper-input type="text" id="domain" label="Enter your AD domain">
         <div prefix><iron-icon icon="chrome-reader-mode"></iron-icon></div>
-      </paper-input>
+      </paper-input> -->
       <paper-input type="password" id="password" label="Enter your password">
         <div prefix><iron-icon icon="communication:vpn-key"></iron-icon></div>
       </paper-input>
@@ -70,7 +70,6 @@
         storeCreds() {
           this.$.ajax.body = {
             username: this.$.username.value,
-            domain: this.$.domain.value,
             password: this.$.password.value
           };
 

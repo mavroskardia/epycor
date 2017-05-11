@@ -58,16 +58,15 @@ def storecreds():
 
     username = data.get('username')
     password = data.get('password')
-    domain = data.get('domain')
 
-    if not username or not password or not domain:
+    if not username or not password:
         return json.dumps({
             'error': True,
             'message': 'You have to enter all three fields'
         })
 
     try:
-        store_credentials(username, password, domain)
+        store_credentials(username, password)
     except Exception as e:
         return json.dumps({
             'error': True,

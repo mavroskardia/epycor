@@ -19,14 +19,9 @@
         font-weight: 600;
       }
 
-      .container:first-child strong,
-      .container:last-child strong {
+      strong.weekend {
         background-color: #ddd;
-        border-color: #ddd;
-        color: #888;
-      }
-
-      .container:first-child small {
+        color: #aaa;
         border-color: #ddd;
       }
 
@@ -36,7 +31,9 @@
       <template is="dom-repeat" items="{{charges}}">
         <div class="vertical layout center flex container">
           <header class="vertical layout center">
-            <strong>[[toDay(currentDate, index)]]</strong>
+            <strong class$="[[_computeDayClass(currentDate, index)]]">
+              [[toDay(currentDate, index)]]
+            </strong>
             <small>[[toShort(currentDate, index)]]</small>
           </header>
           <paper-input
@@ -81,6 +78,10 @@
           return ['currentDateChanged(currentDate)'];
         }
 
+        clear() {
+          this.charges.forEach(c => c.hours = 0);
+        }
+
         currentDateChanged(date) {
           console.log('caught date change to ' + date);
         }
@@ -91,6 +92,11 @@
 
         toShort(date, index) {
           return moment(date).add(index, 'days').format('M/D');
+        }
+
+        _computeDayClass(date, index) {
+          let d = moment(date).add(index, 'days').day();
+          return (d == 0 || d == 6) ? 'weekend' : '';
         }
 
       }

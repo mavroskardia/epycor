@@ -67,13 +67,12 @@
 
         selectCode(e, detail) {
           this.selectedCode = detail.targetResult;
-          console.log('selected new code');
-          console.log(this.selectedCode);
         }
 
-        clear() {
+        clear(skipFocus) {
           this.$.typeahead.value = '';
-          this.$.typeahead.inputElement.focus();
+          if (!skipFocus)
+            this.$.typeahead.inputElement.focus();
           this.selectedCode = undefined;
         }
       }

@@ -62,14 +62,17 @@
 
         <div class="card-content">
 
-          <charge-autocomplete
+          <charge-autocomplete id="chargeAutocomplete"
             selected-code="{{selectedCode}}"
             filtered-allocations="[[filteredAllocations]]">
           </charge-autocomplete>
 
           <div class="horizontal layout center center-center">
             <paper-icon-button icon="chevron-left" on-tap="prevWeek"></paper-icon-button>
-            <week-entry current-date="{{currentDate}}" charges="{{charges}}"></week-entry>
+            <week-entry id="weekEntry"
+              current-date="{{currentDate}}"
+              charges="{{charges}}">
+            </week-entry>
             <paper-icon-button icon="chevron-right" on-tap="nextWeek"></paper-icon-button>
           </div>
 
@@ -210,6 +213,9 @@
         }
 
         respond() {
+          this.$.weekEntry.clear();
+          this.$.chargeAutocomplete.clear(true);
+          this.$.comments.value = '';
           this.$.currentCharges.regenerate();
         }
 

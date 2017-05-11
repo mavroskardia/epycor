@@ -262,8 +262,8 @@ class Epicor:
 		days_entries_hours = enumerate(entries_hours)
 
 		for daynum, (numhours, entry) in days_entries_hours:
-			numhours = int(numhours.get('hours', 0))
-			if numhours <= 0:
+			numhours = float(numhours.get('hours', 0.0))
+			if numhours <= 0.0:
 				continue
 			whendt = when + relativedelta(days=daynum)
 			time = make_time(entry, whendt, numhours)

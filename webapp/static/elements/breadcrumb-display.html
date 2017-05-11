@@ -2,24 +2,28 @@
   <template>
     <style include="shared-styles">
 
-        small, span {
-            display: inline-block;
-            padding: 0; margin: 0;
-        }
+      small, span {
+        display: inline-block;
+        padding: 0; margin: 0;
+      }
 
-        span {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
+      span {
+        font-size: 200%;
+        vertical-align: -15%;
+      }
 
-        small {
-            white-space: nowrap;
-        }
+      span:nth-last-child(2) {
+        display: none;
+      }
+
+      small {
+        white-space: nowrap;
+      }
 
     </style>
-    <template is="dom-repeat" items="[[item.breadcrumb]]">
-        <small>[[item]]</small>
-        <span hidden="[[isLast(index)]]">&rarr;</span>
+    <template is="dom-repeat" items="[[getBreadcrumb(item)]]">
+      <small>[[item]]</small>
+      <span>/</span>
     </template>
   </template>
   <script>
@@ -29,8 +33,31 @@
       class BreadcrumbDisplay {
         get is() { return 'breadcrumb-display' }
 
+        getBreadcrumb(item) {
+
+          if (!item) return [];
+
+          let bc = [],
+              parent = item.parent;
+
+          while (parent) {
+            if (!parent.data || parent.data.outline == '0') {
+              parent = null;
+            } else {
+              bc.push(parent.data.caption);
+              parent = parent.data.parent;
+            }
+          }
+
+          if (bc.join('').length > 100 && bc.length > 3) {
+            bc.splice(1, bc.length - 2, '...');
+          }
+
+          return bc;
+        }
+
         isLast(index) {
-            return index == this.item.breadcrumb.length - 1;
+          return index == this.item.breadcrumb.length - 1;
         }
       }
 

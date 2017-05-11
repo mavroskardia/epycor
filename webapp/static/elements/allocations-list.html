@@ -7,10 +7,12 @@
       }
 
       .filterheader {
-        background-color: #fff;
+        background-color: var(--primary-color);
         padding: 1rem;
         height: 6rem;
       }
+
+      .filterheader span { color: #fff; }
 
       em {
         color: var(--secondary-text-color);
@@ -25,12 +27,41 @@
         margin-right: 1rem;
       }
 
-      iron-list {
+      iron-list,
+      .tree-view {
         height: 79vh;
+      }
+
+      .tree-view {
+        color: var(--primary-text-color);
+        padding: 0.5rem;
+        overflow: auto;
       }
 
       paper-input {
         width: calc(100% - 2rem);
+        --paper-input-container-input-color: #eee;
+        --paper-input-container-focus-color: #444;
+        --secondary-text-color: #eee;
+        --paper-input-prefix: { color: var(--secondary-text-color, #eee); }
+        --paper-input-suffix: { color: var(--secondary-text-color, #eee); }
+      }
+
+      paper-toggle-button {
+        margin-left: 0.5rem;
+        --paper-toggle-button-checked-bar-color: #000;
+      }
+
+      paper-item-body {
+        --paper-item-body-two-line-min-height: 30px;
+      }
+
+      paper-item {
+        border-bottom: solid 1px #ddd;
+      }
+
+      breadcrumb-display {
+        font-size: 12px;
       }
 
     </style>
@@ -40,6 +71,7 @@
       method="get"
       handle-as="json"
       loading="{{loading}}"
+      on-response="buildTree"
       last-response="{{allocations}}">
     </iron-ajax>
 
@@ -55,12 +87,20 @@
           <span class="flex">
             Showing [[filteredCount]] out of [[allocationCount]] Allocations
           </span>
-          <!-- <div class="horizontal layout">
+          <div class="horizontal layout">
             <span>Tree View</span>
-            <paper-toggle-button></paper-toggle-button>
-          </div> -->
+            <paper-toggle-button id="viewToggle"
+              on-tap="switchView">
+            </paper-toggle-button>
+          </div>
         </div>
-        <paper-input id="filterinput" autofocus value="{{filter}}" label="Filter allocations">
+        <paper-input id="filterinput"
+          autofocus
+          value="{{filter}}"
+          label="Filter allocations">
+          <div prefix>
+            <iron-icon icon="filter-list"></iron-icon>
+          </div>
           <div suffix>
             <paper-icon-button icon="clear" on-tap="clearFilter">
             </paper-icon-button>
@@ -68,23 +108,29 @@
         </paper-input>
       </paper-material>
 
-      <iron-list id="codelist"
-        items="[[filteredAllocations]]"
-        selection-enabled
-        selected-item="{{selectedCode}}">
-        <template>
-          <paper-item>
-            <paper-item-body two-line="[[item.breadcrumb]]">
-              <strong>[[item.caption]]</strong>
-              <breadcrumb-display
-                hidden$="[[!item.breadcrumb]]"
-                secondary
-                item="[[item]]">
-              </breadcrumb-display>
-            </paper-item-body>
-          </paper-item>
-        </template>
-      </iron-list>
+      <iron-pages selected="{{selectedView}}">
+
+        <iron-list id="codelist"
+          items="[[filteredAllocations]]"
+          selection-enabled
+          selected-item="{{selectedCode}}">
+          <template>
+            <paper-item>
+              <paper-item-body two-line>
+                <strong>[[item.caption]]</strong>
+                <breadcrumb-display item="[[item]]" secondary></breadcrumb-display>
+              </paper-item-body>
+            </paper-item>
+          </template>
+        </iron-list>
+
+        <div class="tree-view">
+          <paper-tree id="treeView">
+          </paper-tree>
+        </div>
+
+      </iron-pages>
+
 
     </div>
 
@@ -92,6 +138,50 @@
   <script>
     (() => {
       'use strict';
+
+      function arraysEqual(a, b) {
+        if (a === b) return true;
+        if (a == null || b == null) return false;
+        if (a.length != b.length) return false;
+
+        for (var i=0; i < a.length; ++i) {
+          if (a[i] !== b[i]) return false;
+        }
+
+        return true;
+      }
+
+      class Tree {
+
+        constructor(data) {
+          this.data = data || null;
+          this.open = false;
+          this.children = [];
+        }
+
+        add(data) {
+          this.children.push(new Tree(data));
+        }
+
+        get(index) {
+          this.children.length > 0 ? this.children[index] : null;
+        }
+
+        traverse(node, action, level) {
+          if (!level) level = 0;
+          action(node, level);
+          node.children.forEach(n => this.traverse(n, action, level + 1));
+        }
+
+        get name() {
+          return this.data.caption;
+        }
+
+        get icon() {
+          return 'folder-open';
+        }
+
+      }
 
       class AllocationsList {
 
@@ -119,6 +209,10 @@
             dateRangeInBase64: {
               type: String,
               value: () => 'MTQ5MDkzMjgwMHwxNDg4MzQ0NDAw'
+            },
+            selectedView: {
+              type: Number,
+              value: () => 0
             }
           }
         }
@@ -126,6 +220,11 @@
         ready() {
           // TODO: Add date range encoding
           this.$.ajax.generateRequest();
+        }
+
+        switchView() {
+          this.selectedView = this.$.viewToggle.active ? 1 : 0;
+          this.$.filterinput.disabled = this.$.viewToggle.active;
         }
 
         isValidCode(c) {
@@ -144,7 +243,7 @@
 
           let isMatch = (a) => this.isValidCode(a) &&
                                (a.caption.toLowerCase().indexOf(filter) != -1 ||
-                                a.breadcrumb.some(b => b.indexOf(filter)));
+                                a.breadcrumb.join('').indexOf(filter) != -1);
 
           return allocations.filter(isMatch);
 
@@ -161,6 +260,43 @@
         clearFilter() {
           this.$.filterinput.value = '';
           this.$.filterinput.focus();
+        }
+
+        buildTree() {
+
+          function getParent(node, root) {
+            let deepest = root,
+                oparts = node.outline.split('.');
+
+            root.traverse(root, (ppn, level) => {
+              let parts = ppn.data.outline.split('.');
+              if (parts.length != oparts.length - 1) return;
+              if (arraysEqual(parts, oparts.slice(0, oparts.length - 1))) {
+                deepest = ppn;
+              }
+            });
+
+            return deepest;
+          }
+
+          this.treeAllocations = new Tree({
+            node_type: 'root',
+            caption: 'Root',
+            outline: '0'
+          });
+
+          this.async(function() {
+
+            this.allocations.forEach(a => {
+              let parent = getParent(a, this.treeAllocations);
+              a['parent'] = parent;
+              parent.add(a)
+            });
+
+            this.treeAllocations.open = true;
+            this.$.treeView.data = this.treeAllocations;
+
+          });
         }
 
       }

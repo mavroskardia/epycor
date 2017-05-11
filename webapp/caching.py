@@ -20,10 +20,11 @@ def clear_credentials():
 
     username, domain = load_userid_and_domain_from_cache()
     os.remove('creds.json')
+    os.remove('allocations.json')
     keyring.get_keyring().delete_password('epicor', username)
 
 
-def store_credentials(username, password, domain):
+def store_credentials(username, password, domain='AD'):
 
     kr = keyring.get_keyring()
 
@@ -90,7 +91,7 @@ def get_cached_allocations():
 def cache_allocations(allocs):
 
     obj = {
-        'allocations': add_breadcrumbs(allocs),
+        'allocations': allocs,
         'date': datetime.datetime.now().timestamp()
     }
 
@@ -100,18 +101,18 @@ def cache_allocations(allocs):
     return True
 
 
-def add_breadcrumbs(allocs):
+# def add_breadcrumbs(allocs):
 
-    # basic thought is to order the allocations by outline
-    # which ought to mean just going back one in the index to
-    # find any given node's parent
-    allocs = sorted(allocs, key=lambda alloc: alloc.outline)
+#     # basic thought is to order the allocations by outline
+#     # which ought to mean just going back one in the index to
+#     # find any given node's parent
+#     allocs = sorted(allocs, key=lambda alloc: alloc.outline)
 
-    for idx, alloc in enumerate(allocs):
-        alloc.breadcrumb = list(reversed(
-            [allocs[idx-i].caption
-             for i,v in
-             enumerate(alloc.outline.split('.'))
-             if i != 0 and not alloc.outline.startswith('1')])) # skip self and internal
+#     for idx, alloc in enumerate(allocs):
+#         alloc.breadcrumb = list(reversed(
+#             [allocs[idx-i].caption
+#              for i,v in
+#              enumerate(alloc.outline.split('.'))
+#              if i != 0 and not alloc.outline.startswith('1')])) # skip self and internal
 
-    return allocs
+#     return allocs

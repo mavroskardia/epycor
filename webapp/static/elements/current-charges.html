@@ -41,44 +41,58 @@
       last-response="{{charges}}">
     </iron-ajax>
 
-    <div class="horizontal layout totals">
+    <div class="horizontal layout center-center totals">
       <div class="vertical layout center">
         <span>Sunday</span>
-        <strong class$="[[colorCodeHours(charges.0)]]">[[charges.0.Hours]]</strong>
+        <strong class$="[[colorCodeHours(currentDate, 0, charges)]]">
+          [[chargesFor(currentDate, 0, charges)]]
+        </strong>
       </div>
       <div class="vertical layout center">
         <span>Monday</span>
-        <strong>1.00</strong>
+        <strong class$="[[colorCodeHours(currentDate, 1, charges)]]">
+          [[chargesFor(currentDate, 1, charges)]]
+        </strong>
       </div>
       <div class="vertical layout center">
         <span>Tuesday</span>
-        <strong>3.00</strong>
+        <strong class$="[[colorCodeHours(currentDate, 2, charges)]]">
+          [[chargesFor(currentDate, 2, charges)]]
+        </strong>
       </div>
       <div class="vertical layout center">
         <span>Wednesday</span>
-        <strong>2.00</strong>
+        <strong class$="[[colorCodeHours(currentDate, 3, charges)]]">
+          [[chargesFor(currentDate, 3, charges)]]
+        </strong>
       </div>
       <div class="vertical layout center">
         <span>Thursday</span>
-        <strong>5.00</strong>
+        <strong class$="[[colorCodeHours(currentDate, 4, charges)]]">
+          [[chargesFor(currentDate, 4, charges)]]
+        </strong>
       </div>
       <div class="vertical layout center">
         <span>Friday</span>
-        <strong>8.00</strong>
+        <strong class$="[[colorCodeHours(currentDate, 5, charges)]]">
+          [[chargesFor(currentDate, 5, charges)]]
+        </strong>
       </div>
       <div class="vertical layout center">
         <span>Saturday</span>
-        <strong>1.00</strong>
+        <strong class$="[[colorCodeHours(currentDate, 6, charges)]]">
+          [[chargesFor(currentDate, 6, charges)]]
+        </strong>
       </div>
       <div class="vertical layout center">
         <span>Week Total</span>
-        <strong>12.00</strong>
+        <strong>[[totalHours(charges)]]</strong>
       </div>
     </div>
 
     <iron-list
       id="chargesList"
-      items="[[charges]]"
+      items="[[sortedCharges(charges.*)]]"
       selected-items="{{selectedCharges}}"
       selection-enabled
       multi-selection>
@@ -157,8 +171,29 @@
           return btoa(start + '|' + end);
         }
 
-        colorCodeHours(h) {
-          return h != 8 ? 'red' : 'green';
+        colorCodeHours(date, dayOfWeek, charges) {
+          return this.chargesFor(date, dayOfWeek, charges) < 8 ? 'red' : 'green';
+        }
+
+        chargesFor(date, dayOfWeek, charges) {
+          return charges
+            .filter(c => moment(c.TimeEntryDate).day() == dayOfWeek)
+            .map(c => parseFloat(c.Hours))
+            .reduce((a,b) => a + b, 0)
+            .toFixed(2);
+        }
+
+        totalHours(charges) {
+          return charges
+            .map(c => parseFloat(c.Hours))
+            .reduce((a,b) => a + b, 0)
+            .toFixed(2);
+        }
+
+        sortedCharges(chargesPath) {
+          return chargesPath.base
+            .sort((a, b) => moment(a.TimeEntryDate) - moment(b.TimeEntryDate));
+
         }
 
         _computeSelected(selected) {
