@@ -2,6 +2,10 @@
   <template>
     <style include="shared-styles">
 
+      strong {
+        color: inherit;
+      }
+
       .approved { color: #4BB543; } /* http://www.colourlovers.com/color/4BB543/Success_Green */
       .entered { color: #16B7FF; }
       .new { color: #9BAAB3; }
@@ -9,14 +13,12 @@
     </style>
 
     <div class="vertical layout center">
-        <div class="date-display">
-            <strong>[[shortDate(charge)]]</strong>
-        </div>
-        <iron-icon
-          icon="[[getIcon(charge)]]"
-          item-icon
-          class$="[[getIconClass(charge)]]">
-        </iron-icon>
+      <strong>[[shortDate(charge)]]</strong>
+      <iron-icon
+        icon="[[getIcon(charge)]]"
+        item-icon
+        class$="[[getIconClass(charge)]]">
+      </iron-icon>
     </div>
 
 

@@ -2,15 +2,20 @@
   <template>
     <style include="shared-styles">
 
-      :host {
-        --paper-item-body-two-line-min-height: 60px;
-      };
-
-      iron-list { max-height: 28vh; }
-
       .selected {
-        background-color: #a9eaff;
+        background-color: var(--primary-color);
+        --paper-item-icon: {
+          color: #fff;
+        };
       }
+
+      .selected strong,
+      .selected span,
+      .selected charge-item-display {
+        color: #fff;
+      }
+
+      .selected small { color: #ddd; }
 
       .red { color: #900; }
       .green { color: #4BB543; }
@@ -26,11 +31,38 @@
         margin-right: 1rem;
       }
 
+      iron-list { max-height: 28vh; }
+
+      paper-card {
+        width: 100%;
+      }
+
       paper-icon-item {
         min-height: 0;
       }
 
+      paper-dialog h2 {
+        padding: 1rem;
+      }
+
     </style>
+
+    <iron-ajax id="markForApprovalAjax"
+      url="/markforapproval"
+      method="post"
+      handle-as="json"
+      content-type="application/json"
+      on-response="respond"
+      on-error="respondToError">
+    </iron-ajax>
+
+    <iron-ajax id="timeDeleteAjax"
+      url="/deletetime"
+      method="post"
+      handle-as="json"
+      content-type="application/json"
+      on-response="respond">
+    </iron-ajax>
 
     <iron-ajax
       id="ajax"
@@ -41,77 +73,124 @@
       last-response="{{charges}}">
     </iron-ajax>
 
-    <div class="horizontal layout center-center totals">
-      <div class="vertical layout center">
-        <span>Sunday</span>
-        <strong class$="[[colorCodeHours(currentDate, 0, charges)]]">
-          [[chargesFor(currentDate, 0, charges)]]
-        </strong>
-      </div>
-      <div class="vertical layout center">
-        <span>Monday</span>
-        <strong class$="[[colorCodeHours(currentDate, 1, charges)]]">
-          [[chargesFor(currentDate, 1, charges)]]
-        </strong>
-      </div>
-      <div class="vertical layout center">
-        <span>Tuesday</span>
-        <strong class$="[[colorCodeHours(currentDate, 2, charges)]]">
-          [[chargesFor(currentDate, 2, charges)]]
-        </strong>
-      </div>
-      <div class="vertical layout center">
-        <span>Wednesday</span>
-        <strong class$="[[colorCodeHours(currentDate, 3, charges)]]">
-          [[chargesFor(currentDate, 3, charges)]]
-        </strong>
-      </div>
-      <div class="vertical layout center">
-        <span>Thursday</span>
-        <strong class$="[[colorCodeHours(currentDate, 4, charges)]]">
-          [[chargesFor(currentDate, 4, charges)]]
-        </strong>
-      </div>
-      <div class="vertical layout center">
-        <span>Friday</span>
-        <strong class$="[[colorCodeHours(currentDate, 5, charges)]]">
-          [[chargesFor(currentDate, 5, charges)]]
-        </strong>
-      </div>
-      <div class="vertical layout center">
-        <span>Saturday</span>
-        <strong class$="[[colorCodeHours(currentDate, 6, charges)]]">
-          [[chargesFor(currentDate, 6, charges)]]
-        </strong>
-      </div>
-      <div class="vertical layout center">
-        <span>Week Total</span>
-        <strong>[[totalHours(charges)]]</strong>
-      </div>
-    </div>
+    <paper-card class="flex" heading="Charges for Week [[weekRange(currentDate)]]">
 
-    <iron-list
-      id="chargesList"
-      items="[[sortedCharges(charges.*)]]"
-      selected-items="{{selectedCharges}}"
-      selection-enabled
-      multi-selection>
-      <template>
-        <paper-icon-item class$="[[_computeSelected(selected)]]">
-          <charge-item-display charge="[[item]]" item-icon>
-          </charge-item-display>
-          <paper-item-body two-line>
-            <div class="horizontal layout">
-              <span class="flex">[[getItemTitle(item)]]</span>
-              <strong>[[item.Hours]]</strong>
-            </div>
-            <div secondary>
-              <small>[[item.WorkComment]]</small>
-            </div>
-          </paper-item-body>
-        </paper-icon-item>
-      </template>
-    </iron-list>
+      <div class="card-content">
+
+        <div class="horizontal layout center-center totals">
+          <div class="vertical layout center">
+            <span>Sunday</span>
+            <strong class$="[[colorCodeHours(currentDate, 0, charges)]]">
+              [[chargesFor(currentDate, 0, charges)]]
+            </strong>
+          </div>
+          <div class="vertical layout center">
+            <span>Monday</span>
+            <strong class$="[[colorCodeHours(currentDate, 1, charges)]]">
+              [[chargesFor(currentDate, 1, charges)]]
+            </strong>
+          </div>
+          <div class="vertical layout center">
+            <span>Tuesday</span>
+            <strong class$="[[colorCodeHours(currentDate, 2, charges)]]">
+              [[chargesFor(currentDate, 2, charges)]]
+            </strong>
+          </div>
+          <div class="vertical layout center">
+            <span>Wednesday</span>
+            <strong class$="[[colorCodeHours(currentDate, 3, charges)]]">
+              [[chargesFor(currentDate, 3, charges)]]
+            </strong>
+          </div>
+          <div class="vertical layout center">
+            <span>Thursday</span>
+            <strong class$="[[colorCodeHours(currentDate, 4, charges)]]">
+              [[chargesFor(currentDate, 4, charges)]]
+            </strong>
+          </div>
+          <div class="vertical layout center">
+            <span>Friday</span>
+            <strong class$="[[colorCodeHours(currentDate, 5, charges)]]">
+              [[chargesFor(currentDate, 5, charges)]]
+            </strong>
+          </div>
+          <div class="vertical layout center">
+            <span>Saturday</span>
+            <strong class$="[[colorCodeHours(currentDate, 6, charges)]]">
+              [[chargesFor(currentDate, 6, charges)]]
+            </strong>
+          </div>
+          <div class="vertical layout center">
+            <span>Week Total</span>
+            <strong>[[totalHours(charges)]]</strong>
+          </div>
+        </div>
+
+        <iron-list
+          id="chargesList"
+          items="[[sortedCharges(charges.*)]]"
+          selected-items="{{selectedCharges}}"
+          selection-enabled
+          multi-selection>
+          <template>
+            <paper-icon-item class$="[[_computeSelected(selected)]]">
+              <charge-item-display charge="[[item]]" item-icon>
+              </charge-item-display>
+              <paper-item-body two-line>
+                <div class="horizontal layout">
+                  <span class="flex">[[getItemTitle(item)]]</span>
+                  <strong>[[item.Hours]]</strong>
+                </div>
+                <div secondary>
+                  <small>[[item.WorkComment]]</small>
+                </div>
+              </paper-item-body>
+            </paper-icon-item>
+          </template>
+        </iron-list>
+
+      </div>
+
+      <div class="card-actions list-actions">
+        <div class="horizontal layout">
+          <paper-icon-button
+            icon="content-copy"
+            on-tap="copySelected"
+            disabled="[[!selectedCharges.length]]">
+          </paper-icon-button>
+          <paper-icon-button
+            id="pasteButton"
+            icon="content-paste"
+            on-tap="pasteSelected"
+            disabled="[[!copiedCharges.length]]">
+          </paper-icon-button>
+          <paper-badge hidden$="[[!copiedCharges.length]]" for="pasteButton" label="[[copiedCharges.length]]">
+          </paper-badge>
+          <paper-icon-button
+            icon="select-all"
+            on-tap="selectAll">
+          </paper-icon-button>
+          <div class="flex"></div>
+          <paper-button on-tap="markForApproval" disabled="[[!selectedCharges.length]]">
+            Submit for Approval
+          </paper-button>
+          <paper-button on-tap="delete" disabled="[[!selectedCharges.length]]">
+            Delete
+          </paper-button>
+        </div>
+      </div>
+
+    </paper-card>
+
+    <paper-dialog id="deleteConfirmDialog"
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation">
+      <h2>Delete [[selectedCharges.length]] Entries?</h2>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="performDelete">Delete</paper-button>
+      </div>
+    </paper-dialog>
 
   </template>
   <script>
@@ -132,6 +211,10 @@
             selectedCharges: {
               type: Array,
               notify: true
+            },
+            copiedCharges: {
+              type: Array,
+              value: () => []
             },
             animationConfig: {
               value: function () {
@@ -163,6 +246,13 @@
 
         getItemTitle(item) {
           return item.ActivityCode ? item.ActivityCode : item.TaskName;
+        }
+
+        weekRange(date) {
+          let start = moment(date).day(0).format('MM/DD'),
+              end = moment(date).day(6).format('MM/DD');
+
+          return `${start} to ${end}`;
         }
 
         asBase64(date) {
@@ -199,6 +289,59 @@
         _computeSelected(selected) {
           return selected ? 'selected' : '';
         }
+
+        delete() {
+          this.$.deleteConfirmDialog.open();
+        }
+
+        performDelete() {
+
+          this.$.timeDeleteAjax.body = {
+            tasks: this.selectedCharges
+          };
+
+          this.$.timeDeleteAjax.generateRequest();
+
+        }
+
+        markForApproval() {
+
+          this.$.markForApprovalAjax.body = {
+            tasks: this.selectedCharges
+          };
+
+          this.$.markForApprovalAjax.generateRequest();
+
+        }
+
+        respond() {
+          this.regenerate();
+          this.fire('response');
+        }
+
+        respondToError(event, detail) {
+          this.$.toast.show({
+            text: event.detail.request.xhr.response.message
+          });
+        }
+
+        copySelected() {
+          this.copiedCharges = this.$.chargesList.selectedItems.slice();
+        }
+
+        pasteSelected() {
+          this.fire('paste', this.copiedCharges);
+        }
+
+        selectAll() {
+          let list = this.$.chargesList;
+          if (list.selectedItems.length === list.items.length) {
+            this.$.chargesList.items.forEach(i => this.$.chargesList.deselectItem(i));
+          } else {
+            this.$.chargesList.items.forEach(i => this.$.chargesList.selectItem(i));
+          }
+        }
+
       }
 
       Polymer(CurrentCharges);

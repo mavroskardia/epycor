@@ -8,22 +8,24 @@
       paper-card, current-charges {
         margin: 1rem 1rem 0rem 1rem;
         display: block;
-      }
-
-      charge-autocomplete, week-entry, current-charges {
-        display: block;
+        width: calc(100% - 2rem);
       }
 
       charge-autocomplete {
         margin-bottom: 1rem;
+        display: block;
       }
 
       week-entry {
         width: 100%;
       }
 
-      paper-dialog h2 {
-        padding: 1rem;
+      .list-actions {
+        text-align: left;
+      }
+
+      paper-icon-button {
+        color: #444;
       }
 
     </style>
@@ -37,26 +39,9 @@
       on-error="respondToError">
     </iron-ajax>
 
-    <iron-ajax id="markForApprovalAjax"
-      url="/markforapproval"
-      method="post"
-      handle-as="json"
-      content-type="application/json"
-      on-response="respond"
-      on-error="respondToError">
-    </iron-ajax>
-
-    <iron-ajax id="timeDeleteAjax"
-      url="/deletetime"
-      method="post"
-      handle-as="json"
-      content-type="application/json"
-      on-response="respond">
-    </iron-ajax>
-
     <paper-toast id="toast"></paper-toast>
 
-    <div class="vertical layout">
+    <div class="vertical layout center">
 
       <paper-card heading="Add Charges">
 
@@ -93,38 +78,14 @@
 
       </paper-card>
 
-      <paper-card class="flex" heading="Charges for Week [[weekRange(currentDate)]]">
-
-        <div class="card-content">
-          <current-charges
-            id="currentCharges"
-            selected-charges="{{selectedCharges}}"
-            current-date="[[currentDate]]">
-          </current-charges>
-        </div>
-
-        <div class="card-actions">
-          <paper-button on-tap="markForApproval" disabled="[[!selectedCharges.length]]">
-            Submit for Approval
-          </paper-button>
-          <paper-button on-tap="delete" disabled="[[!selectedCharges.length]]">
-            Delete
-          </paper-button>
-        </div>
-
-      </paper-card>
+      <current-charges id="currentCharges"
+        selected-charges="{{selectedCharges}}"
+        current-date="[[currentDate]]"
+        on-response="respond"
+        on-paste="saveClipboard">
+      </current-charges>
 
     </div>
-
-    <paper-dialog id="deleteConfirmDialog"
-      entry-animation="scale-up-animation"
-      exit-animation="fade-out-animation">
-      <h2>Delete [[selectedCharges.length]] Entries?</h2>
-      <div class="buttons">
-        <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button dialog-confirm autofocus on-tap="performDelete">Delete</paper-button>
-      </div>
-    </paper-dialog>
 
   </template>
 
@@ -163,22 +124,33 @@
           this.currentDate = moment(this.currentDate.add(1, 'week'));
         }
 
-        weekRange(date) {
-          let start = moment(date).day(0).format('MM/DD'),
-              end = moment(date).day(6).format('MM/DD');
-
-          return `${start} to ${end}`;
-        }
-
         chargesOrCodeChanged(charges, selectedCode) {
           this.readyForSave = !!selectedCode &&
                               charges.base.some(c => c.hours > 0);
         }
 
-        save() {
+        saveClipboard(event, charges) {
+          this.$.toast.show({
+            text: 'Coming soon!'
+          });
+        }
+
+        saveTask(task) {
+
+          function removeParents(c) {
+            let ret = {};
+
+            for (var p in c) {
+              if (c.hasOwnProperty(p) && p != 'parent') {
+                ret[p] = c[p];
+              }
+            }
+
+            return ret;
+          }
 
           this.$.timeSubmitAjax.body = {
-            task: this.selectedCode,
+            task: removeParents(task),
             charges: this.charges,
             date: this.currentDate,
             comments: this.$.comments.value
@@ -188,28 +160,8 @@
 
         }
 
-        delete() {
-          this.$.deleteConfirmDialog.open();
-        }
-
-        performDelete() {
-
-          this.$.timeDeleteAjax.body = {
-            tasks: this.selectedCharges
-          };
-
-          this.$.timeDeleteAjax.generateRequest();
-
-        }
-
-        markForApproval() {
-
-          this.$.markForApprovalAjax.body = {
-            tasks: this.selectedCharges
-          };
-
-          this.$.markForApprovalAjax.generateRequest();
-
+        save() {
+          this.saveTask(this.selectedCode);
         }
 
         respond() {
@@ -217,12 +169,6 @@
           this.$.chargeAutocomplete.clear(true);
           this.$.comments.value = '';
           this.$.currentCharges.regenerate();
-        }
-
-        respondToError(event, detail) {
-          this.$.toast.show({
-            text: event.detail.request.xhr.response.message
-          });
         }
 
       }
