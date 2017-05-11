@@ -28,6 +28,8 @@
         color: #444;
       }
 
+      paper-dialog h2 { padding: 1rem; }
+
     </style>
 
     <iron-ajax id="timeSubmitAjax"
@@ -49,7 +51,7 @@
 
           <charge-autocomplete id="chargeAutocomplete"
             selected-code="{{selectedCode}}"
-            filtered-allocations="[[filteredAllocations]]">
+            allocations="[[allocations]]">
           </charge-autocomplete>
 
           <div class="horizontal layout center center-center">
@@ -79,6 +81,7 @@
       </paper-card>
 
       <current-charges id="currentCharges"
+        class="flex"
         selected-charges="{{selectedCharges}}"
         current-date="[[currentDate]]"
         on-response="respond"
@@ -86,6 +89,22 @@
       </current-charges>
 
     </div>
+
+    <paper-dialog id="pasteDialog"
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation">
+      <h2>Paste [[clipboardItems.length]] Charges to Which Date?</h2>
+      <paper-dialog-scrollable>
+        <paper-date-picker id="datePicker"
+          date="{{pasteDate}}"
+          force-narrow>
+        </paper-date-picker>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button>Paste</paper-button>
+        <paper-button dialog-dismiss>Cancel</paper-button>
+      </div>
+    </paper-dialog>
 
   </template>
 
@@ -133,6 +152,9 @@
           this.$.toast.show({
             text: 'Coming soon!'
           });
+
+          this.clipboardItems = charges;
+          this.$.pasteDialog.open();
         }
 
         saveTask(task) {

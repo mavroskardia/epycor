@@ -32,9 +32,9 @@ def run_gui(application):
 
     webview = QWebEngineView()
     webview.load(QUrl(ROOT_URL))
-    webview.resize(800,1000)
+    webview.resize(800,900)
     webview.setWindowTitle('Epycor')
-    webview.setMinimumSize(800, 1000)
+    webview.setMinimumSize(800, 900)
     webview.show()
 
     return qtapp.exec_()

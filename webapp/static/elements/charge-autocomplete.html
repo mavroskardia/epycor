@@ -13,7 +13,7 @@
       breadcrumb-display {
         display: block;
         margin: 0 auto;
-        margin-top: -0.5rem;
+        margin-top: -0.25rem;
         width: calc(100% - 2rem);
         font-size: 70%;
         overflow: hidden;
@@ -32,7 +32,7 @@
         no-label-float
         placeholder="Search for a charge code"
         data-key="caption"
-        data="[[filteredAllocations]]"
+        data="[[eligibleAllocations(allocations)]]"
         on-selected="selectCode">
       </paper-typeahead>
 
@@ -74,6 +74,11 @@
           if (!skipFocus)
             this.$.typeahead.inputElement.focus();
           this.selectedCode = undefined;
+        }
+
+        eligibleAllocations(allocations) {
+          return allocations.filter(a =>
+            a.node_type === 'InternalCode' || a.node_type === 'Task');
         }
       }
 
