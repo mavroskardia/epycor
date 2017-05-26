@@ -72,7 +72,7 @@
       handle-as="json"
       loading="{{loading}}"
       on-response="buildTree"
-      last-response="{{allocations}}">
+      last-response="{{rawAllocations}}">
     </iron-ajax>
 
     <div id="msg" hidden="{{!loading}}" class="horizontal layout center center-center">
@@ -132,8 +132,9 @@
 
       </iron-pages>
 
-
     </div>
+
+    <breadcrumb-display id="breadcrumbDisplay"></breadcrumb-display>
 
   </template>
   <script>
@@ -176,7 +177,6 @@
         }
 
         get icon() {
-          console.log(`${this.name}: ${this.data.node_type}`);
           return this.children.length === 0 ? 'assignment' : 'folder-open';
         }
 
@@ -194,6 +194,10 @@
             },
             allocations: {
               type: Array,
+              notify: true
+            },
+            treeAllocations: {
+              type: Object,
               notify: true
             },
             filteredAllocations: {
@@ -246,7 +250,8 @@
 
           let isMatch = (a) => this.isValidCode(a) &&
                                (a.caption.toLowerCase().indexOf(filter) != -1 ||
-                                a.breadcrumb.join('').indexOf(filter) != -1);
+                                this.$.breadcrumbDisplay.getBreadcrumb(a)
+                                  .join('').indexOf(filter) != -1);
 
           return allocations.filter(isMatch);
 
@@ -286,7 +291,7 @@
             return deepest;
           }
 
-          this.treeAllocations = new Tree({
+          let treeAllocations = new Tree({
             node_type: 'root',
             caption: 'Root',
             outline: '0'
@@ -294,14 +299,20 @@
 
           this.async(function() {
 
-            this.allocations.forEach(a => {
-              let parent = getParent(a, this.treeAllocations);
-              a['parent'] = parent;
-              parent.add(a)
+            let allocations = [];
+
+            this.rawAllocations.forEach((alloc, idx) => {
+              let parent = getParent(alloc, treeAllocations);
+              alloc['parent'] = parent;
+              parent.add(alloc);
+              allocations.push(alloc);
             });
 
+            this.treeAllocations = treeAllocations;
             this.treeAllocations.open = true;
-            this.$.treeView.data = this.treeAllocations;
+
+            this.allocations = allocations;
+            this.$.treeView.data = treeAllocations;
 
           });
         }

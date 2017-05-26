@@ -44,7 +44,8 @@
     "paper-dialog-scrollable": "polymerelements/paper-dialog-scrollable#^1.1.5",
     "paper-radio-group": "polymerelements/paper-radio-group#^1.2.2",
     "paper-radio-button": "polymerelements/paper-radio-button#^1.4.0",
-    "paper-date-picker": "bendavis78/paper-date-picker#^1.2.0"
+    "paper-date-picker": "bendavis78/paper-date-picker#^1.2.0",
+    "paper-autocomplete": "ellipticaljs/paper-autocomplete#^2.5.2"
   },
   "resolutions": {
     "iron-a11y-keys-behavior": "^1.1.5",

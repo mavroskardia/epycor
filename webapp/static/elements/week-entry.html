@@ -37,9 +37,11 @@
             <small>[[toShort(currentDate, index)]]</small>
           </header>
           <paper-input
+            id="[[toDay(currentDate, index)]]"
             type="number"
             min="0"
             max="24"
+            on-focus="highlightText"
             value="{{item.hours}}"
             no-label-float>
           </paper-input>
@@ -78,8 +80,21 @@
           return ['currentDateChanged(currentDate)'];
         }
 
+        focusOnMonday() {
+          this.async(() => {
+            this.querySelector('#Mon').focus();
+          });
+        }
+
+        highlightText(event) {
+          event.target.inputElement.select();
+        }
+
         clear() {
           this.charges.forEach(c => c.hours = 0);
+          [].forEach.call(this.querySelectorAll('paper-input'), (pi) => {
+            pi.value = '0';
+          });
         }
 
         currentDateChanged(date) {

@@ -51,16 +51,18 @@
 
           <charge-autocomplete id="chargeAutocomplete"
             selected-code="{{selectedCode}}"
-            allocations="[[allocations]]">
+            on-code-selected="focusOnMonday"
+            allocations="[[allocations]]"
+            tree-allocations="[[treeAllocations]]">
           </charge-autocomplete>
 
           <div class="horizontal layout center center-center">
-            <paper-icon-button icon="chevron-left" on-tap="prevWeek"></paper-icon-button>
+            <paper-icon-button icon="arrow-back" on-tap="prevWeek"></paper-icon-button>
             <week-entry id="weekEntry"
               current-date="{{currentDate}}"
               charges="{{charges}}">
             </week-entry>
-            <paper-icon-button icon="chevron-right" on-tap="nextWeek"></paper-icon-button>
+            <paper-icon-button icon="arrow-forward" on-tap="nextWeek"></paper-icon-button>
           </div>
 
           <paper-textarea id="comments"
@@ -85,7 +87,7 @@
         selected-charges="{{selectedCharges}}"
         current-date="[[currentDate]]"
         on-response="respond"
-        on-paste="saveClipboard">
+        on-paste="showPasteDialog">
       </current-charges>
 
     </div>
@@ -101,7 +103,7 @@
         </paper-date-picker>
       </paper-dialog-scrollable>
       <div class="buttons">
-        <paper-button>Paste</paper-button>
+        <paper-button on-tap="saveClipboard" dialog-confirm>Paste</paper-button>
         <paper-button dialog-dismiss>Cancel</paper-button>
       </div>
     </paper-dialog>
@@ -148,16 +150,32 @@
                               charges.base.some(c => c.hours > 0);
         }
 
-        saveClipboard(event, charges) {
+        focusOnMonday() {
+          this.$.weekEntry.focusOnMonday();
+        }
+
+        saveClipboard() {
           this.$.toast.show({
             text: 'Coming soon!'
           });
 
+          this.clipboardItems.forEach(ci => {
+            let oldDate = moment(ci.TimeEntryDate),
+                newDate = moment(this.pasteDate),
+                hours = [{hours:0}, {hours:0}, {hours:0}, {hours:0}, {hours:0}, {hours:0}, {hours:0}];
+
+            hours[newDate.day()] = {hours:ci.Hours};
+
+            this.saveTask({data:ci}, newDate.day(0).toISOString(), hours, ci.WorkComment);
+          });
+        }
+
+        showPasteDialog(event, charges) {
           this.clipboardItems = charges;
           this.$.pasteDialog.open();
         }
 
-        saveTask(task) {
+        saveTask(task, date, hours, comments) {
 
           function removeParents(c) {
             let ret = {};
@@ -173,9 +191,9 @@
 
           this.$.timeSubmitAjax.body = {
             task: removeParents(task),
-            charges: this.charges,
-            date: this.currentDate,
-            comments: this.$.comments.value
+            charges: hours,
+            date: date,
+            comments: comments
           };
 
           this.$.timeSubmitAjax.generateRequest();
@@ -183,7 +201,8 @@
         }
 
         save() {
-          this.saveTask(this.selectedCode);
+          this.saveTask(this.selectedCode, this.currentDate, this.charges,
+                        this.$.comments.value);
         }
 
         respond() {
@@ -191,6 +210,13 @@
           this.$.chargeAutocomplete.clear(true);
           this.$.comments.value = '';
           this.$.currentCharges.regenerate();
+          this.$.chargeAutocomplete.focus();
+        }
+
+        respondToError(event, detail) {
+          this.$.toast.show({
+            text: event.detail.request.xhr.response.message
+          });
         }
 
       }

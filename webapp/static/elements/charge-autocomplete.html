@@ -4,21 +4,27 @@
 
       iron-icon, paper-icon-button {
         color: #888;
+        margin-top: 1rem;
       }
 
-      paper-typeahead {
-        z-index: 1;
-      }
-
-      breadcrumb-display {
+      breadcrumb-display:not(.breadcrumb) {
         display: block;
         margin: 0 auto;
-        margin-top: -0.25rem;
         width: calc(100% - 2rem);
         font-size: 70%;
         overflow: hidden;
         min-height: 30px;
         line-height: 0.5rem;
+        color: #888;
+      }
+
+      paper-autocomplete {
+        display: block;
+        width: 100%;
+      }
+
+      .breadcrumb {
+        font-size: 70%;
       }
 
     </style>
@@ -27,20 +33,37 @@
 
       <iron-icon prefix icon="search"></iron-icon>
 
-      <paper-typeahead id="typeahead"
-        class="flex"
-        no-label-float
-        placeholder="Search for a charge code"
-        data-key="caption"
-        data="[[eligibleAllocations(allocations)]]"
-        on-selected="selectCode">
-      </paper-typeahead>
+      <paper-autocomplete
+        id="autocomplete"
+        label="Search for a charge code"
+        source="[[eligibleAllocations(allocations)]]"
+        on-autocomplete-selected="selectCode">
 
-      <paper-icon-button icon="clear" on-tap="clear"></paper-icon-button>
+        <template autocomplete-custom-template>
+          <paper-item
+            id$="[[_getSuggestionId(index)]]"
+            on-tap="_onSelect"
+            role="option"
+            aria-selected="false">
+            <paper-item-body two-line>
+              <div>[[item.text]]</div>
+              <breadcrumb-display
+                item="[[item.value]]"
+                class="breadcrumb"
+                secondary>
+              </breadcrumb-display>
+            </paper-item-body>
+          </paper-item>
+        </template>
+
+      </paper-autocomplete>
 
     </div>
 
-    <breadcrumb-display item="[[selectedCode]]"></breadcrumb-display>
+    <breadcrumb-display
+      id="breadcrumbDisplay"
+      item="[[selectedCode]]">
+    </breadcrumb-display>
 
   </template>
   <script>
@@ -62,23 +85,26 @@
 
         selectedCodeChanged(newsc, oldsc) {
           if (!newsc) return;
-          this.$.typeahead.value = newsc.caption;
+          this.$.autocomplete.text = newsc.caption;
+          this.$.autocomplete.value = newsc;
+
         }
 
         selectCode(e, detail) {
-          this.selectedCode = detail.targetResult;
+          this.selectedCode = detail.value;
+          this.fire('code-selected');
         }
 
         clear(skipFocus) {
-          this.$.typeahead.value = '';
-          if (!skipFocus)
-            this.$.typeahead.inputElement.focus();
+          this.$.autocomplete._clear();
           this.selectedCode = undefined;
         }
 
         eligibleAllocations(allocations) {
-          return allocations.filter(a =>
-            a.node_type === 'InternalCode' || a.node_type === 'Task');
+          return allocations
+            .filter(a => a.node_type === 'InternalCode' ||
+                         a.node_type === 'Task')
+            .map(a => ({ text: a.caption, value: a }));
         }
       }
 

@@ -163,9 +163,13 @@ class Epicor:
 		session.auth = HttpNtlmAuth(domainuser, password, session)
 		transport = Transport(session=session)
 
-		self.timeclient = Client(
-			'http://{}/e4se/Time.asmx?wsdl'.format(epicor_ip),
-			transport=transport)
+		try:
+			self.timeclient = Client(
+				'http://{}/e4se/Time.asmx?wsdl'.format(epicor_ip),
+				transport=transport)
+		except Exception as e:
+			self.are_credentials_loaded = False
+			return
 
 		# import pdb; pdb.set_trace()
 
@@ -215,7 +219,7 @@ class Epicor:
 
 	def save_time(self, when=None, what=None, hours=None, comments=None):
 
-		if not when or not what or not hours or not comments:
+		if not when or not what or not hours:
 			# TODO: handle this more gracefully
 			return
 

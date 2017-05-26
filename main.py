@@ -1,6 +1,7 @@
 import sys
 
 from PyQt5.QtCore import QThread, QUrl
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 
@@ -34,6 +35,7 @@ def run_gui(application):
     webview.load(QUrl(ROOT_URL))
     webview.resize(800,900)
     webview.setWindowTitle('Epycor')
+    webview.setWindowIcon(QIcon('time.svg'))
     webview.setMinimumSize(800, 900)
     webview.show()
 

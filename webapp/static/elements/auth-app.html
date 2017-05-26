@@ -42,7 +42,10 @@
 <!--       <paper-input type="text" id="domain" label="Enter your AD domain">
         <div prefix><iron-icon icon="chrome-reader-mode"></iron-icon></div>
       </paper-input> -->
-      <paper-input type="password" id="password" label="Enter your password">
+      <paper-input id="password"
+        type="password"
+        label="Enter your password"
+        on-keydown="submit">
         <div prefix><iron-icon icon="communication:vpn-key"></iron-icon></div>
       </paper-input>
 
@@ -74,6 +77,12 @@
           };
 
           this.$.ajax.generateRequest();
+        }
+
+        submit(e, detail) {
+          if (e.which === 13) {
+            this.storeCreds();
+          }
         }
 
         respond(e, detail) {

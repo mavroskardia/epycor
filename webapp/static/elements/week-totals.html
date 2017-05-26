@@ -1,0 +1,102 @@
+<dom-module id="week-totals">
+  <template>
+    <style include="shared-styles">
+
+      .red { color: #900; }
+      .green { color: #4BB543; }
+
+      .totals {
+        font-size: 60%;
+        color: #666;
+        margin-top: -1.5rem;
+      }
+
+      .totals div {
+        margin-right: 1rem;
+      }
+
+    </style>
+
+    <div class="horizontal layout center-center totals">
+      <div class="vertical layout center">
+        <span>Sunday</span>
+        <strong class$="[[colorCodeHours(currentDate, 0, charges)]]">
+          [[chargesFor(currentDate, 0, charges)]]
+        </strong>
+      </div>
+      <div class="vertical layout center">
+        <span>Monday</span>
+        <strong class$="[[colorCodeHours(currentDate, 1, charges)]]">
+          [[chargesFor(currentDate, 1, charges)]]
+        </strong>
+      </div>
+      <div class="vertical layout center">
+        <span>Tuesday</span>
+        <strong class$="[[colorCodeHours(currentDate, 2, charges)]]">
+          [[chargesFor(currentDate, 2, charges)]]
+        </strong>
+      </div>
+      <div class="vertical layout center">
+        <span>Wednesday</span>
+        <strong class$="[[colorCodeHours(currentDate, 3, charges)]]">
+          [[chargesFor(currentDate, 3, charges)]]
+        </strong>
+      </div>
+      <div class="vertical layout center">
+        <span>Thursday</span>
+        <strong class$="[[colorCodeHours(currentDate, 4, charges)]]">
+          [[chargesFor(currentDate, 4, charges)]]
+        </strong>
+      </div>
+      <div class="vertical layout center">
+        <span>Friday</span>
+        <strong class$="[[colorCodeHours(currentDate, 5, charges)]]">
+          [[chargesFor(currentDate, 5, charges)]]
+        </strong>
+      </div>
+      <div class="vertical layout center">
+        <span>Saturday</span>
+        <strong class$="[[colorCodeHours(currentDate, 6, charges)]]">
+          [[chargesFor(currentDate, 6, charges)]]
+        </strong>
+      </div>
+      <div class="vertical layout center">
+        <span>Week Total</span>
+        <strong>[[totalHours(charges)]]</strong>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class WeekTotals {
+        get is() { return 'week-totals' }
+
+        colorCodeHours(date, dayOfWeek, charges) {
+          return this.chargesFor(date, dayOfWeek, charges) < 8 ? 'red' : 'green';
+        }
+
+        chargesFor(date, dayOfWeek, charges) {
+          return charges
+            .filter(c => moment(c.TimeEntryDate).day() == dayOfWeek)
+            .map(c => parseFloat(c.Hours))
+            .reduce((a,b) => a + b, 0)
+            .toFixed(2);
+        }
+
+        totalHours(charges) {
+          return charges
+            .map(c => parseFloat(c.Hours))
+            .reduce((a,b) => a + b, 0)
+            .toFixed(2);
+        }
+
+      }
+
+      Polymer(WeekTotals);
+
+    })();
+  </script>
+</dom-module>
