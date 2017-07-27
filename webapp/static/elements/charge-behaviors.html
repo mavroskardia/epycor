@@ -1,0 +1,29 @@
+<script>
+
+    (function () {
+
+        if (!window.Epycor) window.Epycor = {};
+
+        Epycor.ChargeBehaviors = {
+
+            getTitle: function (item) {
+                if (!item) return '[INVALID ITEM]';
+                return item.ActivityCode ? item.ActivityDesc : item.TaskName;
+            },
+
+            numCharges: function (charges) {
+                let suffix = charges.length == 0 || charges.length > 1 ? 's' : '';
+                return `${charges.length} charge${suffix}`;
+            },
+
+            totalHours: function (charges) {
+                return charges
+                    .map(c => parseFloat(c.Hours))
+                    .reduce((a,b) => a + b, 0);
+            }
+
+        };
+
+    }());
+
+</script>

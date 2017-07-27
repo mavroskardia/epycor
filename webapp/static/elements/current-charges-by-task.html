@@ -1,0 +1,75 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="chargebase.html">
+
+<dom-module id="current-charges-by-task">
+  <template>
+
+    <style include="shared-styles">
+
+        div[slot="header"] {
+          display: block;
+          width: 100%;
+          cursor: pointer;
+        }
+
+        div[slot="header"] strong {
+          display: inline-block;
+          width: 8rem;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
+
+        paper-expansion-panel {
+          width: 100%;
+        }
+
+    </style>
+
+    <paper-material elevation="1">
+
+    <template is="dom-repeat" items="[[groupCharges(charges)]]">
+      <paper-expansion-panel>
+        <div slot="header">
+          <div class="horizontal layout center">
+            <strong>[[item.key]]</strong>
+            <span class="flex">[[numCharges(item.values)]]</span>
+            <strong>[[totalHours(item.values)]]h</strong>
+          </div>
+        </div>
+        <paper-listbox>
+          <template is="dom-repeat" items="[[item.values]]" as="charge">
+            <paper-item>[[getTitle(charge)]]</paper-item>
+          </template>
+        </paper-listbox>
+      </paper-expansion-panel>
+    </template>
+
+    </paper-material>
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class CurrentChargesByTask extends EpycorChargeBase(EpycorUtilities(Polymer.Element)) {
+
+        static get is() { return 'current-charges-by-task' }
+
+        groupCharges(charges) {
+          return this.groupByAsArray(
+            charges.map(c => {
+              c.title = this.getTitle(c);
+              return c;
+            }), 'title');
+        }
+
+      }
+
+      customElements.define(CurrentChargesByTask.is, CurrentChargesByTask);
+
+    })();
+  </script>
+</dom-module>

@@ -1,0 +1,22 @@
+<script>
+    const EpycorChargeBase = (Base) => class extends Base {
+
+        getTitle(item) {
+            if (!item) return '[INVALID ITEM]';
+            return item.ActivityCode ? item.ActivityDesc : item.TaskName;
+        }
+
+        numCharges(charges) {
+            let suffix = charges.length == 0 || charges.length > 1 ? 's' : '';
+            return `${charges.length} charge${suffix}`;
+        }
+
+        totalHours(charges) {
+            return charges
+                .map(c => parseFloat(c.Hours))
+                .reduce((a,b) => a + b, 0);
+        }
+
+    }
+</script>
+

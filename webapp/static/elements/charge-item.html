@@ -1,0 +1,63 @@
+<dom-module id="charge-item">
+  <template>
+
+    <style include="shared-styles">
+
+      paper-icon-item,
+      paper-item-body,
+      span,
+      strong,
+      small {
+        background-color: inherit;
+        color: inherit;
+      }
+
+    </style>
+
+    <paper-icon-item id="item">
+      <charge-item-display
+        charge="[[charge]]"
+        hidden$="[[hideIcon]]"
+        item-icon>
+      </charge-item-display>
+      <paper-item-body two-line>
+        <div class="horizontal layout">
+          <span class="flex">[[getItemTitle(charge)]]</span>
+          <strong>[[charge.Hours]]</strong>
+        </div>
+        <div secondary>
+          <small>[[charge.WorkComment]]</small>
+        </div>
+      </paper-item-body>
+    </paper-icon-item>
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class ChargeItem extends Polymer.Element {
+
+        static get is() { return 'charge-item' }
+
+        get properties() {
+          return {
+            hideIcon: {
+              type: Boolean,
+              notify: true,
+              value: () => false
+            }
+          };
+        }
+
+        getItemTitle(item) {
+          return item.ActivityCode ? item.ActivityCode : item.TaskName;
+        }
+
+      }
+
+      customElements.define(ChargeItem.is, ChargeItem);
+
+    })();
+  </script>
+</dom-module>

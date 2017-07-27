@@ -1,0 +1,26 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="current-charges-by-date">
+  <template>
+    <style include="shared-styles"></style>
+
+    <span>charges by date</span>
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class CurrentChargesByDate extends Polymer.Element {
+
+        static get is() { return 'current-charges-by-date' }
+
+      }
+
+      customElements.define(CurrentChargesByDate.is, CurrentChargesByDate);
+
+    })();
+  </script>
+</dom-module>

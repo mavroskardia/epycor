@@ -1,0 +1,51 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="empty-set-message">
+  <template>
+    <style include="shared-styles">
+
+      #emptysetmsg {
+        position: relative;
+        display: block;
+        margin-top: 8px;
+        height: 3rem;
+        padding: 1rem;
+        padding-left: calc(24px + 1rem);
+        background-color: #ccc;
+        @apply --layout-horizontal;
+        @apply --layout-center-center;
+      }
+
+      #emptysetmsg iron-icon {
+        color: var(--primary-color);
+        position: absolute;
+        left: -29px;
+        --iron-icon-width: 64px;
+        --iron-icon-height: 64px;
+      }
+
+    </style>
+
+    <div class="horizontal layout center-center center">
+      <span id="emptysetmsg">
+        <iron-icon icon="info"></iron-icon>
+        <em>Charges entered above will appear here.</em>
+      </span>
+    </div>
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class EmptySetMessage extends Polymer.Element {
+
+        static get is() { return 'empty-set-message' }
+
+      }
+
+      customElements.define(EmptySetMessage.is, EmptySetMessage);
+
+    })();
+  </script>
+</dom-module>

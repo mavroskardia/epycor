@@ -1,0 +1,147 @@
+<dom-module id="charge-list-by-task">
+  <template>
+    <style include="shared-styles">
+
+      paper-listbox {
+        height: 29vh;
+        overflow: auto;
+      }
+
+      paper-expansion-panel {
+        display: block;
+        box-sizing: border-box;
+        cursor: pointer;
+      }
+
+      [slot="header"] {
+        display: block;
+        width: 100%;
+        height: 1rem;
+      }
+
+      [slot="header"] strong {
+        display: inline-block;
+        width: 3rem;
+      }
+
+      charge-item.iron-selected {
+        background-color: var(--primary-color);
+        color: #fff;
+      }
+
+
+    </style>
+
+    <paper-listbox id="chargesList" multi hidden$="[[!charges.length]]">
+
+    <template is="dom-repeat" items="[[groupedCharges(charges.*)]]">
+      <paper-expansion-panel>
+        <div slot="header">
+          <div class="horizontal layout center">
+            <span class="flex">
+              <strong>[[shortDate(item.date)]]</strong>
+              <span>[[numCharges(item.date, charges)]]</span>
+            </span>
+            <span>[[totalHours(item.date, charges)]]h</span>
+          </div>
+        </div>
+        <template is="dom-repeat" items="[[item.charges]]" as="charge">
+          <charge-item hide-icon charge="[[charge]]"></charge-item>
+        </template>
+      </paper-expansion-panel>
+    </template>
+
+    </paper-listbox>
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      var groupBy = (xs, key) => {
+        return xs.reduce((rv, x) => {
+          (rv[x[key]] = rv[x[key]] || []).push(x);
+          return rv;
+        }, {});
+      };
+
+      class ChargeListByTask {
+
+        static get is() { return 'charge-list-by-task' }
+
+        get behaviors() {
+          return [
+            Polymer.NeonAnimationRunnerBehavior
+          ];
+        }
+
+        get properties() {
+          return {
+            animationConfig: {
+              value: function () {
+                return {
+                  'cool': [{
+                    name: 'cascaded-animation',
+                    animation: 'fade-in-animation'
+                  }]
+                };
+              }
+            }
+          };
+        }
+
+        groupedCharges(charges) {
+
+          let grouped = groupBy(charges.base, 'TimeEntryDate');
+          let final = [];
+
+          for (var k in grouped) {
+            final.push({
+              date: k,
+              charges: grouped[k]
+            });
+          }
+
+          return final;
+
+        }
+
+        animate() {
+          let items = Polymer.dom(this.root).querySelectorAll('paper-expansion-panel');
+          this.animationConfig['cool'][0].nodes = items;
+          this.playAnimation('cool');
+        }
+
+        shortDate(item) {
+          return moment(item).format('M/D');
+        }
+
+        numCharges(date, charges) {
+
+          let d = moment(date).format('M/D/Y');
+          let n = charges
+            .filter(c => moment(c.TimeEntryDate).format('M/D/Y') == d).length;
+
+          return `${n} charge${n == 0 || n > 1 ? 's' : ''}`;
+
+        }
+
+        totalHours(date, charges) {
+
+          let d = moment(date).format('M/D/Y');
+          let v = charges
+            .filter(c => moment(c.TimeEntryDate).format('M/D/Y') == d)
+            .map(c => parseFloat(c.Hours))
+            .reduce((a,b) => a + b, 0);
+
+          return v;
+
+        }
+
+      }
+
+      Polymer(ChargeListByTask);
+
+    })();
+  </script>
+</dom-module>
