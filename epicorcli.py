@@ -1,9 +1,13 @@
 'Execute Epicor commands from the command line'
-
+#pylint: disable=W0212
 import sys
+import datetime
+
 from getpass import getpass
+from html import escape
 
 from dateutil.parser import parse
+from dateutil import tz
 
 import epicor
 
@@ -20,6 +24,8 @@ class EpicorCLI:
             'help': self.help,
             'quit': self.quit,
             'charges': self.charges,
+            'allocations': self.allocations,
+            'debug': self.debug,
             'delete': self.delete_charge
         }
 
@@ -77,6 +83,20 @@ class EpicorCLI:
         idx = int(input('Choose charge to delete by index: '))
         result = self.epicor.delete_time([self.current_entries[idx]])
         print(result)
+
+    def allocations(self):
+        now = datetime.datetime.now()
+        weekstart = now - datetime.timedelta(days=now.isoweekday())
+        weekend = weekstart + datetime.timedelta(days=6)
+        allocations = self.epicor.get_allocations(weekstart, weekend)
+        print('Retrieved {} allocations.'.format(len(allocations)))
+        import pdb; pdb.set_trace()
+        print('what now?')
+
+
+    def debug(self):
+        import pdb; pdb.set_trace()
+        print('entering debug mode')
 
 
 if __name__ == '__main__':

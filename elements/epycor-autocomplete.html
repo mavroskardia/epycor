@@ -1,0 +1,130 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../bower_components/paper-styles/shadow.html">
+
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="breadcrumb-display.html">
+
+<dom-module id="epycor-autocomplete">
+  <template>
+    <style includes="shared-styles">
+
+      iron-icon,
+      paper-icon-button {
+        color: #ccc;
+      }
+
+      .matchbox {
+        position: absolute;
+        @apply --shadow-elevation-3dp;
+        width: 90%;
+        max-height: 30vh;
+        overflow: auto;
+        z-index: 1;
+        background-color: #fff;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+    </style>
+
+    <paper-input id="theinput"
+      type="text"
+      label="Search for charge code here"
+      value="{{searchText}}">
+      <div slot="prefix">
+        <iron-icon icon="search"></iron-icon>
+      </div>
+      <div slot="suffix">
+        <paper-icon-button icon="clear" on-tap="clear"></paper-icon-button>
+      </div>
+    </paper-input>
+
+    <iron-list id="thelist"
+      hidden="[[hidden]]"
+      class="matchbox"
+      items="[[matches]]"
+      selection-enabled
+      selected-item="{{selectedCode}}">
+      <template>
+        <paper-item>
+          <paper-item-body two-line>
+            <div>[[item.caption]]</div>
+            <breadcrumb-display secondary item="[[item]]"></breadcrumb-display>
+          </paper-item-body>
+        </paper-item>
+      </template>
+    </iron-list>
+
+    <breadcrumb-display id="breadcrumb" hidden></breadcrumb-display>
+
+  </template>
+  <script>
+    (function () {
+      class EpycorAutocomplete extends Polymer.Element {
+
+        static get is() { return "epycor-autocomplete"; }
+
+        static get observers() {
+          return [
+            'searchTextChanged(searchText)',
+            'selectedCodeChanged(selectedCode)',
+            'hiddenChanged(hidden)'
+          ];
+        }
+
+        constructor() {
+          super();
+          this.hidden = true;
+        }
+
+        clear() {
+          this.$.theinput.value = '';
+          this.matches = [];
+          this.$.theinput.focus();
+        }
+
+        selectedCodeChanged(selectedCode) {
+          if (selectedCode) {
+            this.selectedCode = selectedCode;
+            this.$.theinput.value = selectedCode.caption;
+            this.hidden = true;
+          }
+        }
+
+        hiddenChanged(hidden) {
+          console.log(`hidden changed from ${!hidden} to ${hidden}`);
+        }
+
+        _checkToHide(searchText, matches, total) {
+          if (!searchText) setTimeout(() => this.hidden = true, 100);
+        }
+
+        searchTextChanged(searchText) {
+          setTimeout(() => {
+            let st = searchText.toLowerCase();
+            this.matches = this.data
+              .filter(a => a.caption.toLowerCase().indexOf(st) !== -1 ||
+                          this.$.breadcrumb.getBreadcrumb(a, true)
+                            .some(bc => bc.indexOf(st) !== -1));
+
+            this._checkToHide(st, this.matches, this.data);
+
+            this.matches = this.matches.slice(0, 10); // only show the first 10
+            return this.matches;
+          });
+        }
+
+      }
+
+      customElements.define(EpycorAutocomplete.is, EpycorAutocomplete);
+
+    }());
+  </script>
+</dom-module>

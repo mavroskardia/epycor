@@ -12,8 +12,15 @@ import requests
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import parse
 from zeep import Client
+from zeep.exceptions import Fault
 from zeep.transports import Transport
 from requests_ntlm import HttpNtlmAuth
+
+
+def result_to_dict(result):
+    'Takes result and makes a list of dicts based on the child specified'
+    return [{leaf.tag: leaf.text for leaf in child.getchildren()} for child in result.getchildren()]
+
 
 def get(node, name):
     'Returns inner text node of specified "name" child node or empty string'
@@ -186,6 +193,10 @@ class Epicor:
 
         # import pdb; pdb.set_trace()
 
+        self.projectclient = Client(
+            'http://{}/e4se/Project.asmx?wsdl'.format(epicor_ip),
+            transport=transport)
+
         self.psaclient = Client(
             'http://{}/e4se/PSAClientHelper.asmx?wsdl'.format(epicor_ip),
             transport=transport)
@@ -214,11 +225,11 @@ class Epicor:
         <FavoritesTree>0</FavoritesTree>
         <InternalTree>1</InternalTree>
         <CustomTree>1</CustomTree>
-        <ResourceCategoryList>3</ResourceCategoryList>
+        <ResourceCategoryList>'1'</ResourceCategoryList>
         <FromDate>{fromdate}</FromDate>
         <ToDate>{todate}</ToDate>
     </SearchCriteria>
-</ProjectTreeCriteriaDoc>'''.replace('\n', '').strip()
+</ProjectTreeCriteriaDoc>'''.replace('\n', '').replace(' ', '').strip()
 
     def get_resource_id(self, userid):
         'Establish the corresponding resource id for this user id'
@@ -231,17 +242,21 @@ class Epicor:
 
         print('Getting allocations from {} to {}'.format(fromdate.isoformat(), todate.isoformat()))
 
-        allocations_result = self.psaclient.service.GetNavigator(
-            self.criteria_doc_template.format(
-                resourceid=self.resourceid,
-                fromdate=fromdate.strftime('%Y-%m-%d'),
-                todate=todate.strftime('%Y-%m-%d')))
+        fromdate = fromdate.strftime('%Y-%m-%d')
+        todate = todate.strftime('%Y-%m-%d')
+        criteria_doc = self.criteria_doc_template.format(resourceid=self.resourceid,
+                                                         fromdate=fromdate,
+                                                         todate=todate)
 
-        import pdb; pdb.set_trace()
-
-        return [NavigatorNode(node)
-                for node in
-                allocations_result.body.GetNavigatorResult._value_1]
+        try:
+            allocations_result = self.psaclient.service.GetNavigator(criteria_doc)
+            return [NavigatorNode(node)
+                    for node in
+                    allocations_result.body.GetNavigatorResult._value_1]
+        except Fault as fault:
+            print('Failed to get allocations. Reason:', fault)
+            import pdb; pdb.set_trace()
+            return None
 
 
     def get_time_entries(self, fromdate, todate, foruser=None):

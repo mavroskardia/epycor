@@ -70,20 +70,6 @@
 
     </style>
 
-    <iron-ajax id="timeSubmitAjax"
-      url="/entertime"
-      method="post"
-      handle-as="json"
-      content-type="application/json"
-      on-response="respond"
-      on-error="respondToError">
-    </iron-ajax>
-
-    <iron-ajax id="chargesAjax"
-      handle-as="json"
-      last-response="{{currentCharges}}">
-    </iron-ajax>
-
     <paper-toast id="toast"></paper-toast>
 
     <div class="vertical layout center">
@@ -137,14 +123,6 @@
         </current-charges-by-date>
       </iron-pages>
 
-<!--       <current-charges id="currentCharges"
-        class="flex"
-        selected-charges="{{selectedCharges}}"
-        current-date="[[currentDate]]"
-        on-response="respond"
-        on-paste="showPasteDialog">
-      </current-charges>
- -->
     </div>
 
     <paper-dialog id="pasteDialog"
@@ -199,8 +177,6 @@
 
         currentDateChanged(currentDate) {
           let b64date = this.asBase64(currentDate);
-          this.$.chargesAjax.url = `/charges/${b64date}`;
-          this.$.chargesAjax.generateRequest();
         }
 
         prevWeek() {

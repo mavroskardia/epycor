@@ -1,24 +1,33 @@
+'Caching logic for Epycor'
+
 import os
 import json
-import keyring
 import datetime
 
-from .epicor import NavigatorNode, DataNode
+import keyring
+
+from epicor import NavigatorNode, DataNode
 
 
 class CustomEncoder(json.JSONEncoder):
+    'Simple custom encoder so json.dumps understands our data objects'
 
-    def default(self, obj):
-        override = not isinstance(obj, NavigatorNode)
-        override = override and not isinstance(obj, DataNode)
+    # following recommended method shouldn't be an error
+    #pylint: disable=E0202
+    def default(self, o):
+        'Give it the right direction for NavigatorNode and DataNode'
+
+        override = not isinstance(o, NavigatorNode)
+        override = override and not isinstance(o, DataNode)
         if override:
-            return super(CustomEncoder, self).default(obj)
-        return obj.__dict__
+            return super(CustomEncoder, self).default(o)
+        return o.__dict__
 
 
 def clear_credentials():
+    'Clears previously saved credentials and allocations'
 
-    username, domain = load_userid_and_domain_from_cache()
+    username, _ = load_userid_and_domain_from_cache()
     os.remove('creds.json')
     os.remove('allocations.json')
     keyring.get_keyring().delete_password('epicor', username)
@@ -26,11 +35,10 @@ def clear_credentials():
 
 def store_credentials(username, password, domain='AD'):
 
-    kr = keyring.get_keyring()
+    local_keyring = keyring.get_keyring()
 
     try:
-        kr.set_password('epicor', username, password)
-
+        local_keyring.set_password('epicor', username, password)
         with open('creds.json', 'w') as f:
             json.dump({
                 'userid': username,
@@ -38,7 +46,7 @@ def store_credentials(username, password, domain='AD'):
             }, f)
     except Exception as e:
         os.remove('creds.json')
-        kr.delete_password('epicor', username)
+        local_keyring.delete_password('epicor', username)
         raise e
 
 

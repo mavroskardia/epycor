@@ -1,5 +1,45 @@
 <script>
 
+    function arraysEqual(a, b) {
+        if (a === b) return true;
+        if (a == null || b == null || a.length != b.length) return false;
+        for (var i=0; i < a.length; ++i) {
+            if (a[i] !== b[i]) return false;
+        }
+        return true;
+    }
+
+    class Tree {
+
+        constructor(data) {
+            this.data = data || null;
+            this.children = [];
+        }
+
+        add(data) {
+            this.children.push(new Tree(data));
+        }
+
+        get(index) {
+            this.children.length > 0 ? this.children[index] : null;
+        }
+
+        traverse(node, action, level) {
+            if (!level) level = 0;
+            action(node, level);
+            node.children.forEach(n => this.traverse(n, action, level + 1));
+        }
+
+        get name() {
+            return this.data.caption;
+        }
+
+        get icon() {
+            return this.children.length === 0 ? 'assignment' : 'folder-open';
+        }
+
+    }
+
     const EpycorUtilities = (function () {
 
         const EpycorUtilities = Base => class extends Base {

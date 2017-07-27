@@ -11,6 +11,7 @@
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
@@ -43,6 +44,7 @@
 
       .sidebar {
         height: 90vh;
+        width: 100%;
       }
 
     </style>
@@ -59,7 +61,7 @@
 
     <app-header>
       <app-toolbar>
-        <paper-icon-button icon="menu" on-tap="drawer.toggle()"></paper-icon-button>
+        <paper-icon-button icon="menu" on-tap="drawerToggle"></paper-icon-button>
         <div main-title>Epycor</div>
       </app-toolbar>
     </app-header>
@@ -68,17 +70,18 @@
       <app-toolbar>Menu</app-toolbar>
 
       <div class="vertical layout sidebar">
+        <span>Selected Code: [[selectedCode.caption]]</span>
         <paper-listbox selected="{{selected}}" class="flex">
           <paper-icon-item>
-            <iron-icon item-icon icon="assignment"></iron-icon>
+            <iron-icon slot="item-icon" icon="assignment"></iron-icon>
             <paper-item-body>Allocations</paper-item-body>
           </paper-icon-item>
           <paper-icon-item>
-            <iron-icon item-icon icon="schedule"></iron-icon>
+            <iron-icon slot="item-icon" icon="schedule"></iron-icon>
             <paper-item-body>Enter Time</paper-item-body>
           </paper-icon-item>
           <paper-icon-item>
-            <iron-icon item-icon icon="dashboard"></iron-icon>
+            <iron-icon slot="item-icon" icon="dashboard"></iron-icon>
             <paper-item-body>Analytics</paper-item-body>
           </paper-icon-item>
         </paper-listbox>
@@ -101,13 +104,13 @@
       <iron-pages selected="{{selected}}">
 
         <allocations-list
-          selected-code="{{selectedcode}}"
+          selected-code="{{selectedCode}}"
           allocations="{{allocations}}"
           tree-allocations="{{treeAllocations}}">
         </allocations-list>
 
         <time-entry
-          selected-code="{{selectedcode}}"
+          selected-code="{{selectedCode}}"
           allocations="[[allocations]]"
           tree-allocations="[[treeAllocations]]">
         </time-entry>
@@ -138,19 +141,27 @@
           }
         }
 
-        get observers() {
+        static get observers() {
           return [
-            'selectedcodeChanged(selectedcode)',
+            'selectedCodeChanged(selectedCode)',
             'selectedChanged(selected)'
           ];
         }
 
-        selectedChanged(s) {
-          this.$.drawer.close();
+        drawerToggle() {
+          this.$.drawer.opened = !this.$.drawer.opened;
         }
 
-        selectedcodeChanged(sc) {
-          this.selected = 1;
+        selectedChanged(selected) {
+          if (!isNaN(selected)) {
+            this.$.drawer.close();
+          }
+        }
+
+        selectedCodeChanged(selectedCode) {
+          if (selectedCode) {
+            this.selected = 1;
+          }
         }
 
         clearAuth() {
@@ -158,6 +169,9 @@
         }
 
         clearCreds() {
+          clear_credentials(() => {
+            window.location = 'getcreds.html';
+          });
           this.$.clearCredsAjax.generateRequest();
         }
 

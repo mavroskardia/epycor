@@ -1,3 +1,5 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
 <dom-module id="breadcrumb-display">
   <template>
     <style include="shared-styles">
@@ -35,7 +37,7 @@
 
         static get is() { return 'breadcrumb-display' }
 
-        getBreadcrumb(item) {
+        getBreadcrumb(item, lowercase) {
 
           if (!item) return [];
 
@@ -55,7 +57,7 @@
             bc.splice(1, bc.length - 2, '...');
           }
 
-          return bc;
+          return !!lowercase ? bc.map(part => part.toLowerCase()) : bc;
         }
 
         isLast(index) {

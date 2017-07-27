@@ -17,6 +17,9 @@
 <link rel="import" href="utilities.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="breadcrumb-display.html">
+<link rel="import" href="epycor-tree.html">
+
+<script src="../bower_components/moment/min/moment.min.js"></script>
 
 <dom-module id="allocations-list">
   <template>
@@ -27,9 +30,11 @@
       }
 
       .filterheader {
+        display: block;
         background-color: var(--primary-color);
         padding: 1rem;
         height: 6rem;
+        width: 100%;
       }
 
       .filterheader span { color: #fff; }
@@ -68,7 +73,7 @@
       }
 
       paper-toggle-button {
-        margin-left: 0.5rem;
+        margin: 0 1rem;
         --paper-toggle-button-checked-bar-color: #000;
       }
 
@@ -86,21 +91,12 @@
 
     </style>
 
-    <iron-ajax id="ajax"
-      url="/allocations/[[dateRangeInBase64]]"
-      method="get"
-      handle-as="json"
-      loading="{{loading}}"
-      on-response="buildTree"
-      last-response="{{rawAllocations}}">
-    </iron-ajax>
-
-    <div id="msg" hidden="{{!loading}}" class="horizontal layout center center-center">
+    <div id="msg" hidden="[[!loading]]" class="horizontal layout center center-center">
       <paper-spinner active></paper-spinner>
       <em>Retrieving your allocations...</em>
     </div>
 
-    <div hidden="{{loading}}">
+    <div hidden="[[loading]]">
 
       <paper-material elevation="2" class="filterheader">
         <div class="horizontal layout">
@@ -145,10 +141,11 @@
         </iron-list>
 
         <div class="tree-view">
-          <em>tree view disabled for routine maintenance, check back soon!</em>
-          <paper-tree id="treeView" hidden
+          <epycor-tree tree="[[treeAllocations]]" selected-code="{{selectedCode}}">
+          </epycor-tree>
+          <!--<paper-tree id="treeView" hidden
             on-select="selectCode">
-          </paper-tree>
+          </paper-tree>-->
         </div>
 
       </iron-pages>
@@ -162,55 +159,15 @@
     (() => {
       'use strict';
 
-      function arraysEqual(a, b) {
-        if (a === b) return true;
-        if (a == null || b == null || a.length != b.length) return false;
-        for (var i=0; i < a.length; ++i) {
-          if (a[i] !== b[i]) return false;
-        }
-        return true;
-      }
-
-      class Tree {
-
-        constructor(data) {
-          this.data = data || null;
-          this.open = false;
-          this.children = [];
-        }
-
-        add(data) {
-          this.children.push(new Tree(data));
-        }
-
-        get(index) {
-          this.children.length > 0 ? this.children[index] : null;
-        }
-
-        traverse(node, action, level) {
-          if (!level) level = 0;
-          action(node, level);
-          node.children.forEach(n => this.traverse(n, action, level + 1));
-        }
-
-        get name() {
-          return this.data.caption;
-        }
-
-        get icon() {
-          return this.children.length === 0 ? 'assignment' : 'folder-open';
-        }
-
-      }
-
       class AllocationsList extends EpycorUtilities(Polymer.Element) {
 
         static get is() { return 'allocations-list' }
 
-        get properties() {
+        static get properties() {
           return {
             selectedCode: {
               type: Object,
+              observer: 'selectedCodeChanged',
               notify: true
             },
             allocations: {
@@ -247,13 +204,19 @@
 
         ready() {
           super.ready();
-          this.dateRangeInBase64 = this.asBase64(moment());
-          this.$.ajax.generateRequest();
+          this.selectedView = 0;
+          this.loading = true;
+          let now = moment();
+          get_allocations(now.day(0).format('YYYY-MM-DD'), now.day(6).format('YYYY-MM-DD'), (allocations) => {
+            this.rawAllocations = allocations;
+            this.buildTree();
+            this.loading = false;
+          });
         }
 
         switchView() {
-          this.selectedView = this.$.viewToggle.active ? 1 : 0;
-          this.$.filterinput.disabled = this.$.viewToggle.active;
+          this.selectedView = this.$.viewToggle.active ? 0 : 1; // this is reverse because the active flag hasn't switched until after switchView()
+          this.$.filterinput.disabled = !this.$.viewToggle.active;
         }
 
         isValidCode(c) {
@@ -270,12 +233,13 @@
 
           filter = filter.toLowerCase();
 
-          let isMatch = (a) => this.isValidCode(a) &&
-                               (a.caption.toLowerCase().indexOf(filter) != -1 ||
-                                this.$.breadcrumbDisplay.getBreadcrumb(a)
-                                  .join('').indexOf(filter) != -1);
-
-          return allocations.filter(isMatch);
+          return allocations.filter((alloc) => {
+            let isValid = this.isValidCode(alloc);
+            let inCaption = alloc.caption.toLowerCase().indexOf(filter) != -1;
+            let breadcrumb = this.$.breadcrumbDisplay.getBreadcrumb(alloc);
+            let inBreadcrumb = breadcrumb.join('').indexOf(filter) != -1;
+            return isValid && (inCaption || inBreadcrumb);
+          });
 
         }
 
@@ -294,6 +258,16 @@
 
         selectCode(event, node) {
           this.selectedCode = node.data.data;
+        }
+
+        selectedCodeChanged(newc, oldc) {
+          if (newc) {
+            this.selectedCode = newc;
+          }
+        }
+
+        runFilter() {
+          this.filterAllocations(this.$.filterinput.value, this.allocations);
         }
 
         buildTree() {
@@ -320,7 +294,6 @@
           });
 
           setTimeout(() => {
-
             let allocations = [];
 
             this.rawAllocations.forEach((alloc, idx) => {
@@ -331,11 +304,8 @@
             });
 
             this.treeAllocations = treeAllocations;
-            this.treeAllocations.open = true;
 
             this.allocations = allocations;
-            this.$.treeView.data = treeAllocations;
-
           });
         }
 

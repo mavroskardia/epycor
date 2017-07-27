@@ -1,0 +1,87 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-ripple/paper-ripple.html">
+
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="epycor-tree">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding-left: 1rem;
+      }
+
+      iron-icon {
+        margin-right: 0.5rem;
+      }
+
+      .heading {
+        position: relative;
+        cursor: pointer;
+        padding: 0.5rem;
+      }
+
+      .heading:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+
+    </style>
+
+    <div class="horizontal layout center heading" on-tap="activateOrToggle">
+      <iron-icon icon="[[tree.icon]]"></iron-icon>
+      <span class="caption flex">[[tree.name]]</span>
+      <paper-ripple></paper-ripple>
+    </div>
+
+    <iron-collapse id="collapse">
+      <template is="dom-repeat" items="[[tree.children]]">
+        <epycor-tree tree="[[item]]" selected-code="{{selectedCode}}"></epycor-tree>
+      </template>
+    </iron-collapse>
+
+  </template>
+  <script>
+    (function () {
+
+      class EpycorTree extends Polymer.Element {
+
+        static get is() { return 'epycor-tree'; }
+
+        static get properties() {
+          return {
+            tree: {
+              type: Object,
+              value: () => []
+            },
+            selectedCode: {
+              type: Object,
+              notify: true
+            }
+          };
+        }
+
+        activateOrToggle(e) {
+          if (this.noChildren(this.tree)) {
+            this.selectedCode = this.tree.data;
+          } else {
+            this.toggle();
+          }
+        }
+
+        toggle() {
+          this.$.collapse.toggle();
+        }
+
+        noChildren(tree) {
+          return tree.children.length === 0;
+        }
+
+      }
+
+      customElements.define(EpycorTree.is, EpycorTree);
+
+    }());
+  </script>
+</dom-module>

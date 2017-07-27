@@ -5,6 +5,7 @@
 <link rel="import" href="../bower_components/paper-item/paper-item-body.html">
 
 <link rel="import" href="shared-styles.html">
+<link rel="import" href="epycor-autocomplete.html">
 <link rel="import" href="breadcrumb-display.html">
 
 <dom-module id="charge-autocomplete">
@@ -27,7 +28,7 @@
         color: #888;
       }
 
-      paper-autocomplete {
+      epycor-autocomplete {
         display: block;
         width: 100%;
       }
@@ -40,9 +41,12 @@
 
     <div class="horizontal layout center center-center">
 
-      <iron-icon prefix icon="search"></iron-icon>
+      <epycor-autocomplete
+        data="[[eligibleAllocations(allocations)]]"
+        selected-code="{{selectedCode}}">
+      </epycor-autocomplete>
 
-      <paper-autocomplete
+      <!--<paper-autocomplete
         id="autocomplete"
         label="Search for a charge code"
         source="[[eligibleAllocations(allocations)]]"
@@ -65,7 +69,7 @@
           </paper-item>
         </template>
 
-      </paper-autocomplete>
+      </paper-autocomplete>-->
 
     </div>
 
@@ -113,8 +117,7 @@
         eligibleAllocations(allocations) {
           return allocations
             .filter(a => a.node_type === 'InternalCode' ||
-                         a.node_type === 'Task')
-            .map(a => ({ text: a.caption, value: a }));
+                         a.node_type === 'Task');
         }
       }
 

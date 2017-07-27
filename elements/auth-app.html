@@ -1,3 +1,15 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+
+<link rel="import" href="shared-styles.html">
+
 <dom-module id="auth-app">
   <template>
     <style include="shared-styles">
@@ -7,6 +19,7 @@
         font-size: 60%;
         font-style: oblique;
         font-weight: normal;
+        margin-left: 2rem;
       }
 
       paper-material {
@@ -72,22 +85,15 @@
         static get is() { return 'auth-app' }
 
         storeCreds() {
-          this.$.ajax.body = {
-            username: this.$.username.value,
-            password: this.$.password.value
-          };
-
-          this.$.ajax.generateRequest();
+          store_credentials(this.$.username.value, this.$.password.value, () => {
+            window.location = 'index.html';
+          });
         }
 
         submit(e, detail) {
           if (e.which === 13) {
             this.storeCreds();
           }
-        }
-
-        respond(e, detail) {
-          this.$.instructionsDialog.open();
         }
 
       }
