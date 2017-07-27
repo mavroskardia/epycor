@@ -1,57 +1,75 @@
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/polymer/lib/elements/custom-style.html">
+
 <dom-module id="shared-styles">
   <template>
-    <style>
+  <style include="iron-flex iron-flex-alignment">
 
-      :host {
-        --primary-text-color: #424242;
-        --secondary-text-color: #aaa;
-        --primary-color: #3299bb;
-        --accent-color: #bb9932;
+    :host > * {
+      --primary-text-color: #424242;
+      --secondary-text-color: #aaa;
+      --primary-color: #3299bb;
+      --accent-color: #bb9932;
 
-        --paper-tabs-selection-bar-color: var(--accent-color);
-        --paper-card-header-color: var(--primary-text-color);
-
-        --paper-input-char-counter: {
-          color: #aaa;
-        };
-
-        --paper-typeahead-result-selected: {
-          color: #fff;
-        }
-
-        --paper-typeahead-result-selected-background: var(--primary-color);
-
-      }
-
-      h1, h2, h3, h4, h5, h6 { padding: 0; margin: 0; }
-
-      h1, h2, h3, h4, h5, h6,
-      p, em, strong, span, small,
-      paper-input,
-      app-toolbar
-      {
-        font-family: "Noto Sans", "Roboto", sans-serif;
-        color: var(--primary-text-color);
-      }
-
-      app-toolbar {
+      --paper-typeahead-result-selected: {
         color: #fff;
-        background-color: var(--primary-color);
-      }
+      };
 
-      paper-icon-item,
-      paper-item {
-        cursor: pointer;
-      }
+      --paper-typeahead-result-selected-background: var(--primary-color);
 
-      paper-input [prefix] {
-        margin-right: 0.5rem;
-      }
+    }
 
-      .card-actions {
-        text-align: right;
-      }
+    h1, h2, h3, h4, h5, h6 { padding: 0; margin: 0; }
 
-    </style>
+    h1, h2, h3, h4, h5, h6,
+    p, em, strong, span, small,
+    paper-input,
+    app-toolbar {
+      font-family: "Noto Sans", "Roboto", sans-serif;
+      color: var(--primary-text-color);
+    }
+
+    app-toolbar {
+      color: #fff;
+      background-color: var(--primary-color);
+    }
+
+    paper-card,
+    paper-material {
+      background-color: #fff;
+    }
+
+    paper-card {
+      --paper-card-header-color: var(--primary-text-color);
+    }
+
+    paper-tabs {
+      --paper-tabs-selection-bar-color: var(--primary-color);
+    }
+
+    paper-tab {
+      --paper-tab-ink: var(--primary-color);
+    }
+
+    paper-icon-item,
+    paper-item {
+      cursor: pointer;
+    }
+
+    paper-input {
+      --paper-input-char-counter: {
+        color: #aaa;
+      };
+    }
+
+    paper-input [prefix] {
+      margin-right: 0.5rem;
+    }
+
+    .card-actions {
+      text-align: right;
+    }
+
+  </style>
   </template>
 </dom-module>

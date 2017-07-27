@@ -1,3 +1,9 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="shared-styles.html">
+
 <dom-module id="week-entry">
   <template>
     <style include="shared-styles">
@@ -54,11 +60,11 @@
     (() => {
       'use strict';
 
-      class WeekEntry {
+      class WeekEntry extends Polymer.Element {
 
-        get is() { return 'week-entry' }
+        static get is() { return 'week-entry' }
 
-        get properties() {
+        static get properties() {
           return {
             charges: {
               type: Array,
@@ -76,7 +82,7 @@
           }
         }
 
-        get observers() {
+        static get observers() {
           return ['currentDateChanged(currentDate)'];
         }
 
@@ -116,7 +122,7 @@
 
       }
 
-      Polymer(WeekEntry);
+      customElements.define(WeekEntry.is, WeekEntry);
 
     })();
   </script>

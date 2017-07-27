@@ -71,8 +71,9 @@
     (() => {
       'use strict';
 
-      class WeekTotals {
-        get is() { return 'week-totals' }
+      class WeekTotals extends Polymer.Element {
+
+        static get is() { return 'week-totals' }
 
         colorCodeHours(date, dayOfWeek, charges) {
           return this.chargesFor(date, dayOfWeek, charges) < 8 ? 'red' : 'green';
@@ -95,7 +96,7 @@
 
       }
 
-      Polymer(WeekTotals);
+      customElements.define(WeekTotals.is, WeekTotals);
 
     })();
   </script>

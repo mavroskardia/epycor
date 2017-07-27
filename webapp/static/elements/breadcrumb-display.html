@@ -31,8 +31,9 @@
     (() => {
       'use strict';
 
-      class BreadcrumbDisplay {
-        get is() { return 'breadcrumb-display' }
+      class BreadcrumbDisplay extends Polymer.Element {
+
+        static get is() { return 'breadcrumb-display' }
 
         getBreadcrumb(item) {
 
@@ -62,7 +63,7 @@
         }
       }
 
-      Polymer(BreadcrumbDisplay);
+      customElements.define(BreadcrumbDisplay.is, BreadcrumbDisplay);
 
     })();
   </script>

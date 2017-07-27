@@ -1,3 +1,27 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+
+<link rel="import" href="utilities.html">
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="charge-autocomplete.html">
+<link rel="import" href="week-entry.html">
+<link rel="import" href="current-charges-by-task.html">
+<link rel="import" href="current-charges-by-date.html">
+
 <script src="../bower_components/moment/min/moment.min.js"></script>
 
 <dom-module id="time-entry">
@@ -28,7 +52,21 @@
         color: #444;
       }
 
-      paper-dialog h2 { padding: 1rem; }
+      paper-dialog h2 {
+        padding: 1rem;
+      }
+
+      iron-pages,
+      paper-tabs {
+        display: block;
+        width: 100%;
+      }
+
+      current-charges-by-task,
+      current-charges-by-date {
+        display: block;
+        margin: 1rem;
+      }
 
     </style>
 
@@ -41,6 +79,11 @@
       on-error="respondToError">
     </iron-ajax>
 
+    <iron-ajax id="chargesAjax"
+      handle-as="json"
+      last-response="{{currentCharges}}">
+    </iron-ajax>
+
     <paper-toast id="toast"></paper-toast>
 
     <div class="vertical layout center">
@@ -50,8 +93,8 @@
         <div class="card-content">
 
           <charge-autocomplete id="chargeAutocomplete"
-            selected-code="{{selectedCode}}"
             on-code-selected="focusOnMonday"
+            selected-code="{{selectedCode}}"
             allocations="[[allocations]]"
             tree-allocations="[[treeAllocations]]">
           </charge-autocomplete>
@@ -60,7 +103,7 @@
             <paper-icon-button icon="arrow-back" on-tap="prevWeek"></paper-icon-button>
             <week-entry id="weekEntry"
               current-date="{{currentDate}}"
-              charges="{{charges}}">
+              charges="{{dayCharges}}">
             </week-entry>
             <paper-icon-button icon="arrow-forward" on-tap="nextWeek"></paper-icon-button>
           </div>
@@ -76,20 +119,32 @@
 
         <div class="card-actions">
           <paper-button on-tap="save" disabled="[[!readyForSave]]">
-            Save
+            <iron-icon icon="save"></iron-icon>Save
           </paper-button>
         </div>
 
       </paper-card>
 
-      <current-charges id="currentCharges"
+      <paper-tabs selected="{{currentChargeView}}">
+        <paper-tab>Charges By Task</paper-tab>
+        <paper-tab>Charges By Date</paper-tab>
+      </paper-tabs>
+
+      <iron-pages selected="{{currentChargeView}}">
+        <current-charges-by-task charges="[[currentCharges]]">
+        </current-charges-by-task>
+        <current-charges-by-date charges="[[currentCharges]]">
+        </current-charges-by-date>
+      </iron-pages>
+
+<!--       <current-charges id="currentCharges"
         class="flex"
         selected-charges="{{selectedCharges}}"
         current-date="[[currentDate]]"
         on-response="respond"
         on-paste="showPasteDialog">
       </current-charges>
-
+ -->
     </div>
 
     <paper-dialog id="pasteDialog"
@@ -114,19 +169,24 @@
     (() => {
       'use strict';
 
-      class TimeEntry {
+      class TimeEntry extends EpycorUtilities(Polymer.Element) {
 
-        get is() { return 'time-entry' }
+        static get is() { return 'time-entry' }
 
-        get properties() {
+        static get properties() {
           return {
             currentDate: {
               type: Object,
-              value: () => moment().day(0)
+              value: () => moment().day(0),
+              observer: 'currentDateChanged'
             },
             selectedCode: {
               type: Object,
               notify: true
+            },
+            currentChargeView: {
+              type: Number,
+              value: () => 0
             }
           }
         }
@@ -135,6 +195,12 @@
           return [
             'chargesOrCodeChanged(charges.*, selectedCode)'
           ]
+        }
+
+        currentDateChanged(currentDate) {
+          let b64date = this.asBase64(currentDate);
+          this.$.chargesAjax.url = `/charges/${b64date}`;
+          this.$.chargesAjax.generateRequest();
         }
 
         prevWeek() {
@@ -201,6 +267,7 @@
         }
 
         save() {
+          console.log(`saving ${this.selectedCode}...`);
           this.saveTask(this.selectedCode, this.currentDate, this.charges,
                         this.$.comments.value);
         }
@@ -209,7 +276,7 @@
           this.$.weekEntry.clear();
           this.$.chargeAutocomplete.clear(true);
           this.$.comments.value = '';
-          this.$.currentCharges.regenerate();
+          //this.$.currentCharges.regenerate();
           this.$.chargeAutocomplete.focus();
         }
 
@@ -221,7 +288,7 @@
 
       }
 
-      Polymer(TimeEntry);
+      customElements.define(TimeEntry.is, TimeEntry);
 
     })();
   </script>

@@ -1,3 +1,23 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
+
+<!--<link rel="import" href="../bower_components/paper-tree/paper-tree.html">-->
+
+<link rel="import" href="utilities.html">
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="breadcrumb-display.html">
+
 <dom-module id="allocations-list">
   <template>
     <style include="shared-styles">
@@ -125,7 +145,8 @@
         </iron-list>
 
         <div class="tree-view">
-          <paper-tree id="treeView"
+          <em>tree view disabled for routine maintenance, check back soon!</em>
+          <paper-tree id="treeView" hidden
             on-select="selectCode">
           </paper-tree>
         </div>
@@ -182,9 +203,9 @@
 
       }
 
-      class AllocationsList {
+      class AllocationsList extends EpycorUtilities(Polymer.Element) {
 
-        get is() { return 'allocations-list' }
+        static get is() { return 'allocations-list' }
 
         get properties() {
           return {
@@ -215,7 +236,7 @@
             },
             dateRangeInBase64: {
               type: String,
-              value: () => 'MTQ5MDkzMjgwMHwxNDg4MzQ0NDAw'
+              value: () => ''
             },
             selectedView: {
               type: Number,
@@ -225,7 +246,8 @@
         }
 
         ready() {
-          // TODO: Add date range encoding
+          super.ready();
+          this.dateRangeInBase64 = this.asBase64(moment());
           this.$.ajax.generateRequest();
         }
 
@@ -297,7 +319,7 @@
             outline: '0'
           });
 
-          this.async(function() {
+          setTimeout(() => {
 
             let allocations = [];
 
@@ -319,7 +341,7 @@
 
       }
 
-      Polymer(AllocationsList);
+      customElements.define(AllocationsList.is, AllocationsList);
 
     })();
   </script>

@@ -67,8 +67,9 @@
     (() => {
       'use strict';
 
-      class AuthApp {
-        get is() { return 'auth-app' }
+      class AuthApp extends Polymer.Element {
+
+        static get is() { return 'auth-app' }
 
         storeCreds() {
           this.$.ajax.body = {
@@ -88,9 +89,10 @@
         respond(e, detail) {
           this.$.instructionsDialog.open();
         }
+
       }
 
-      Polymer(AuthApp);
+      customElements.define(AuthApp.is, AuthApp);
 
     })();
   </script>
