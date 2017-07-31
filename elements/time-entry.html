@@ -6,6 +6,7 @@
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
@@ -21,6 +22,7 @@
 <link rel="import" href="week-entry.html">
 <link rel="import" href="current-charges-by-task.html">
 <link rel="import" href="current-charges-by-date.html">
+<link rel="import" href="empty-set-message.html">
 
 <script src="../bower_components/moment/min/moment.min.js"></script>
 
@@ -29,13 +31,16 @@
 
     <style include="shared-styles">
 
-      paper-card, current-charges {
+      paper-card,
+      paper-material,
+      current-charges {
         margin: 1rem 1rem 0rem 1rem;
         display: block;
         width: calc(100% - 2rem);
       }
 
       charge-autocomplete {
+        margin-top: -2rem;
         margin-bottom: 1rem;
         display: block;
       }
@@ -66,6 +71,21 @@
       current-charges-by-date {
         display: block;
         margin: 1rem;
+      }
+
+      .charges {
+        height: 32vh;
+        margin-top: -2rem;
+        overflow: auto;
+      }
+
+      .charges .emptyset {
+        padding: 0 1rem;
+      }
+
+      .charges .emptyset iron-icon {
+        margin-right: 0.5rem;
+        --iron-icon-fill-color: cornflowerblue;
       }
 
     </style>
@@ -116,12 +136,37 @@
         <paper-tab>Charges By Date</paper-tab>
       </paper-tabs>
 
-      <iron-pages selected="{{currentChargeView}}">
-        <current-charges-by-task charges="[[currentCharges]]">
-        </current-charges-by-task>
-        <current-charges-by-date charges="[[currentCharges]]">
-        </current-charges-by-date>
-      </iron-pages>
+      <paper-card
+        heading="Charges for [[startOfWeek(currentDate)]] to [[endOfWeek(currentDate)]]">
+
+        <div class="card-content charges">
+
+          <empty-set-message hidden="[[currentCharges.length]]"></empty-set-message>
+
+          <iron-pages selected="{{currentChargeView}}">
+            <current-charges-by-task current-date="[[currentDate]]" charges="[[currentCharges]]">
+            </current-charges-by-task>
+            <current-charges-by-date charges="[[currentCharges]]">
+            </current-charges-by-date>
+          </iron-pages>
+
+        </div>
+
+        <div class="card-actions">
+          <div class="horizontal layout">
+            <paper-button>
+              <iron-icon icon="clear"></iron-icon>
+              Delete
+            </paper-button>
+            <div class="flex"></div>
+            <paper-button>
+              <iron-icon icon="flag"></iron-icon>
+              Mark for Approval
+            </paper-button>
+          </div>
+        </div>
+
+      </paper-material>
 
     </div>
 
@@ -155,11 +200,14 @@
           return {
             currentDate: {
               type: Object,
-              value: () => moment().day(0),
-              observer: 'currentDateChanged'
+              value: () => moment().day(0)
             },
             selectedCode: {
               type: Object,
+              notify: true
+            },
+            currentCharges: {
+              type: Array,
               notify: true
             },
             currentChargeView: {
@@ -169,14 +217,21 @@
           }
         }
 
-        get observers() {
+        static get observers() {
           return [
-            'chargesOrCodeChanged(charges.*, selectedCode)'
+            '_chargesOrCodeChanged(charges.*, selectedCode)',
+            '_currentDateChanged(currentDate)'
           ]
         }
 
-        currentDateChanged(currentDate) {
-          let b64date = this.asBase64(currentDate);
+        _chargesOrCodeChanged(charges, selectedCode) {
+          this.readyForSave = !!selectedCode && charges.base.some(c => c.hours > 0);
+        }
+
+        _currentDateChanged(currentDate) {
+          get_charges(moment(this.currentDate).format('YYYY-MM-DD'), (charges) => {
+            this.currentCharges = JSON.parse(charges);
+          });
         }
 
         prevWeek() {
@@ -187,9 +242,12 @@
           this.currentDate = moment(this.currentDate.add(1, 'week'));
         }
 
-        chargesOrCodeChanged(charges, selectedCode) {
-          this.readyForSave = !!selectedCode &&
-                              charges.base.some(c => c.hours > 0);
+        startOfWeek(date) {
+          return moment(date).day(0).format('YYYY-MM-DD');
+        }
+
+        endOfWeek(date) {
+          return moment(date).day(6).format('YYYY-MM-DD');
         }
 
         focusOnMonday() {
@@ -252,7 +310,6 @@
           this.$.weekEntry.clear();
           this.$.chargeAutocomplete.clear(true);
           this.$.comments.value = '';
-          //this.$.currentCharges.regenerate();
           this.$.chargeAutocomplete.focus();
         }
 

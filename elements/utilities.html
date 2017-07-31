@@ -59,7 +59,7 @@
 
             groupByAsArray(xs, key) {
                 let final = [];
-                let grouped = Epycor.UtilityBehaviors.groupBy(xs, key);
+                let grouped = this.groupBy(xs, key);
 
                 for (var k in grouped) {
                     final.push({

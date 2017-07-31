@@ -1,21 +1,57 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
 <link rel="import" href="shared-styles.html">
+<link rel="import" href="chargebase.html">
+<link rel="import" href="charge-item.html">
 
 <dom-module id="current-charges-by-date">
   <template>
     <style include="shared-styles"></style>
 
-    <span>charges by date</span>
+    <template is="dom-repeat" items="[[groupCharges(charges)]]">
+      <div>
+        <header class="horizontal layout center" on-tap="expand">
+          <iron-icon icon="expand-more"></iron-icon>
+          <strong class="flex">[[item.key]]</strong>
+          <span>[[numCharges(item.values)]]</span>
+          <strong>
+            <iron-icon icon="schedule"></iron-icon>
+            [[totalHours(item.values)]]h
+          </strong>
+        </header>
+        <iron-collapse>
+          <paper-listbox>
+            <template is="dom-repeat" items="[[item.values]]" as="charge">
+              <charge-item charge="[[charge]]"></charge-item>
+            </template>
+          </paper-listbox>
+        </iron-collapse>
+      </div>
+    </template>
 
   </template>
   <script>
     (() => {
       'use strict';
 
-      class CurrentChargesByDate extends Polymer.Element {
+      class CurrentChargesByDate extends EpycorChargeBase(EpycorUtilities(Polymer.Element)) {
 
         static get is() { return 'current-charges-by-date' }
+
+        groupCharges(charges) {
+          return this.groupByAsArray(
+            charges.map(c => {
+              c.title = this.getTitle(c);
+              c.day = moment(c.TimeEntryDate).format('MM/DD');
+              return c;
+            }), 'day');
+        }
+
+        expand(evt, detail) {
+          let node = evt.target;
+          while (node.tagName !== "HEADER") node = node.parentElement;
+          node.nextElementSibling.toggle();
+        }
 
       }
 

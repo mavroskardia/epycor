@@ -38,7 +38,6 @@
     "paper-input": "PolymerElements/paper-input#^2.0.0",
     "paper-toast": "PolymerElements/paper-toast#^2.0.0",
     "paper-dialog-scrollable": "PolymerElements/paper-dialog-scrollable#^2.0.0",
-    "paper-autocomplete": "ellipticaljs/paper-autocomplete#2.0-preview",
     "iron-collapse": "polymerelements/iron-collapse#^2.0.0",
     "paper-ripple": "polymerelements/paper-ripple#^2.0.0"
   }

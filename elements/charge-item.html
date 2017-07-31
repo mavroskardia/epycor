@@ -1,3 +1,10 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../bower_components/paper-item/paper-item-body.html">
+
+<link rel="import" href="charge-item-display.html">
+
 <dom-module id="charge-item">
   <template>
 
@@ -14,11 +21,11 @@
 
     </style>
 
-    <paper-icon-item id="item">
+    <paper-icon-item>
       <charge-item-display
         charge="[[charge]]"
         hidden$="[[hideIcon]]"
-        item-icon>
+        slot="item-icon">
       </charge-item-display>
       <paper-item-body two-line>
         <div class="horizontal layout">
@@ -40,7 +47,7 @@
 
         static get is() { return 'charge-item' }
 
-        get properties() {
+        static get properties() {
           return {
             hideIcon: {
               type: Boolean,

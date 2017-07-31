@@ -1,53 +1,58 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
+<link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="chargebase.html">
+<link rel="import" href="charge-item.html">
 
 <dom-module id="current-charges-by-task">
   <template>
 
     <style include="shared-styles">
 
-        div[slot="header"] {
-          display: block;
-          width: 100%;
-          cursor: pointer;
-        }
+      header {
+        display: block;
+        width: 100%;
+        cursor: pointer;
+      }
 
-        div[slot="header"] strong {
-          display: inline-block;
-          width: 8rem;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          overflow: hidden;
-        }
+      header span {
+        margin-right: 2rem;
+      }
 
-        paper-expansion-panel {
-          width: 100%;
-        }
+      header strong {
+        display: inline-block;
+        width: 8rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
 
     </style>
 
-    <paper-material elevation="1">
-
     <template is="dom-repeat" items="[[groupCharges(charges)]]">
-      <paper-expansion-panel>
-        <div slot="header">
-          <div class="horizontal layout center">
-            <strong>[[item.key]]</strong>
-            <span class="flex">[[numCharges(item.values)]]</span>
-            <strong>[[totalHours(item.values)]]h</strong>
-          </div>
-        </div>
-        <paper-listbox>
-          <template is="dom-repeat" items="[[item.values]]" as="charge">
-            <paper-item>[[getTitle(charge)]]</paper-item>
-          </template>
-        </paper-listbox>
-      </paper-expansion-panel>
+      <div>
+        <header class="horizontal layout center" on-tap="expand">
+          <iron-icon icon="expand-more"></iron-icon>
+          <strong class="flex">[[item.key]]</strong>
+          <span>[[numCharges(item.values)]]</span>
+          <strong>
+            <iron-icon icon="schedule"></iron-icon>
+            [[totalHours(item.values)]]h
+          </strong>
+        </header>
+        <iron-collapse>
+          <paper-listbox>
+            <template is="dom-repeat" items="[[item.values]]" as="charge">
+              <charge-item charge="[[charge]]"></charge-item>
+            </template>
+          </paper-listbox>
+        </iron-collapse>
+      </div>
     </template>
-
-    </paper-material>
 
   </template>
   <script>
@@ -64,6 +69,12 @@
               c.title = this.getTitle(c);
               return c;
             }), 'title');
+        }
+
+        expand(evt, detail) {
+          let node = evt.target;
+          while (node.tagName !== "HEADER") node = node.parentElement;
+          node.nextElementSibling.toggle();
         }
 
       }

@@ -10,13 +10,6 @@
       --secondary-text-color: #aaa;
       --primary-color: #3299bb;
       --accent-color: #bb9932;
-
-      --paper-typeahead-result-selected: {
-        color: #fff;
-      };
-
-      --paper-typeahead-result-selected-background: var(--primary-color);
-
     }
 
     h1, h2, h3, h4, h5, h6 { padding: 0; margin: 0; }
@@ -37,6 +30,11 @@
     paper-card,
     paper-material {
       background-color: #fff;
+    }
+
+    paper-material h2 {
+      margin: 1rem;
+      @apply --paper-font-headline;
     }
 
     paper-card {
@@ -64,6 +62,14 @@
 
     paper-input [prefix] {
       margin-right: 0.5rem;
+    }
+
+    paper-button iron-icon {
+      margin-right: 0.5rem;
+    }
+
+    iron-icon {
+      --iron-icon-fill-color: var(--primary-text-color);
     }
 
     .card-actions {

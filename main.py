@@ -3,6 +3,8 @@
 import sys
 import os
 import threading
+import datetime
+import json
 
 from cefpython3 import cefpython as cef
 from dateutil.parser import parse
@@ -20,6 +22,7 @@ class Epycor:
         self.exposed_functions = {
             'store_credentials': self.store_credentials,
             'get_allocations': self.get_allocations,
+            'get_charges': self.get_charges,
             'clear_credentials': self.clear_credentials
         }
 
@@ -54,6 +57,7 @@ class Epycor:
 
     def get_allocations(self, fromdate, todate, jscallback):
         'Get allocations from Epicor and send them client-side'
+
         def threadfunc(fromdate, todate, jscallback):
             'Threaded so we do not block the UI'
             allocations = caching.get_cached_allocations()
@@ -61,7 +65,21 @@ class Epycor:
                 allocations = self.epicor.get_allocations(parse(fromdate), parse(todate))
                 caching.cache_allocations(allocations)
             jscallback.Call(allocations)
+
         thread = threading.Thread(target=threadfunc, args=(fromdate, todate, jscallback))
+        thread.start()
+
+    def get_charges(self, fromdate, jscallback):
+        'Get charges for the week starting from the time specified'
+
+        def threadfunc(fromdate, jscallback):
+            'Non-block thread for UI'
+            fromdate = parse(fromdate)
+            todate = fromdate + datetime.timedelta(days=6)
+            charges = self.epicor.get_time_entries(fromdate, todate)
+            jscallback.Call(json.dumps(charges, cls=caching.CustomEncoder))
+
+        thread = threading.Thread(target=threadfunc, args=(fromdate, jscallback))
         thread.start()
 
     def set_javascript_bindings(self, browser):

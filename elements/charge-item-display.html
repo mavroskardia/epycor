@@ -1,3 +1,9 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+
 <dom-module id="charge-item-display">
   <template>
     <style include="shared-styles">
@@ -16,11 +22,9 @@
       <strong>[[shortDate(charge)]]</strong>
       <iron-icon
         icon="[[getIcon(charge)]]"
-        item-icon
         class$="[[getIconClass(charge)]]">
       </iron-icon>
     </div>
-
 
   </template>
   <script>
