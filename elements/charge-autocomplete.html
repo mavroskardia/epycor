@@ -45,31 +45,6 @@
         selected-code="{{selectedCode}}">
       </epycor-autocomplete>
 
-      <!--<paper-autocomplete
-        id="autocomplete"
-        label="Search for a charge code"
-        source="[[eligibleAllocations(allocations)]]"
-        on-autocomplete-selected="selectCode">
-
-        <template autocomplete-custom-template>
-          <paper-item
-            id$="[[_getSuggestionId(index)]]"
-            on-tap="_onSelect"
-            role="option"
-            aria-selected="false">
-            <paper-item-body two-line>
-              <div>[[item.text]]</div>
-              <breadcrumb-display
-                item="[[item.value]]"
-                class="breadcrumb"
-                secondary>
-              </breadcrumb-display>
-            </paper-item-body>
-          </paper-item>
-        </template>
-
-      </paper-autocomplete>-->
-
     </div>
 
     <breadcrumb-display
@@ -86,21 +61,13 @@
 
         static get is() { return 'charge-autocomplete' }
 
-        get properties() {
+        static get properties() {
           return {
             selectedCode: {
               type: Object,
-              notify: true,
-              observer: 'selectedCodeChanged'
+              notify: true
             }
           };
-        }
-
-        selectedCodeChanged(newsc, oldsc) {
-          if (!newsc) return;
-          this.$.autocomplete.text = newsc.caption;
-          this.$.autocomplete.value = newsc;
-
         }
 
         selectCode(e, detail) {

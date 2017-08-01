@@ -6,7 +6,27 @@
 
 <dom-module id="current-charges-by-date">
   <template>
-    <style include="shared-styles"></style>
+    <style include="shared-styles">
+
+      header {
+        display: block;
+        width: 100%;
+        cursor: pointer;
+      }
+
+      header span {
+        margin-right: 2rem;
+      }
+
+      header strong {
+        display: inline-block;
+        width: 8rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+
+    </style>
 
     <template is="dom-repeat" items="[[groupCharges(charges)]]">
       <div>
@@ -14,10 +34,8 @@
           <iron-icon icon="expand-more"></iron-icon>
           <strong class="flex">[[item.key]]</strong>
           <span>[[numCharges(item.values)]]</span>
-          <strong>
-            <iron-icon icon="schedule"></iron-icon>
-            [[totalHours(item.values)]]h
-          </strong>
+          <iron-icon icon="schedule"></iron-icon>
+          <strong>[[totalHours(item.values)]]h</strong>
         </header>
         <iron-collapse>
           <paper-listbox>
@@ -42,7 +60,7 @@
           return this.groupByAsArray(
             charges.map(c => {
               c.title = this.getTitle(c);
-              c.day = moment(c.TimeEntryDate).format('MM/DD');
+              c.day = moment(c.TimeEntryDate).format('M/DD');
               return c;
             }), 'day');
         }

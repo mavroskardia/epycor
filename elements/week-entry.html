@@ -48,6 +48,7 @@
             min="0"
             max="24"
             on-focus="highlightText"
+            on-keydown="handleKeydown"
             value="{{item.hours}}"
             no-label-float>
           </paper-input>
@@ -87,13 +88,23 @@
         }
 
         focusOnMonday() {
-          this.async(() => {
-            this.querySelector('#Mon').focus();
+          setTimeout(() => {
+            this.root.querySelector('#Mon').focus();
           });
         }
 
+        handleKeydown(evt) {
+          if (evt.which === 13) {
+            this.dispatchEvent(new CustomEvent('hit-enter', evt));
+          }
+        }
+
         highlightText(event) {
-          event.target.inputElement.select();
+          try {
+            event.target.inputElement.inputElement.select();
+          } catch (ex) {
+            event.target.inputElement.select();
+          }
         }
 
         clear() {

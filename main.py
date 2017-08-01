@@ -82,6 +82,13 @@ class Epycor:
         thread = threading.Thread(target=threadfunc, args=(fromdate, jscallback))
         thread.start()
 
+    def save_charges(self, payload):
+        'Parse payload and send to epicor for saving'
+
+        data = json.loads(payload)
+
+
+
     def set_javascript_bindings(self, browser):
         'Create JS bindings for python functions'
 

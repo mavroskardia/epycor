@@ -109,7 +109,8 @@
             <paper-icon-button icon="arrow-back" on-tap="prevWeek"></paper-icon-button>
             <week-entry id="weekEntry"
               current-date="{{currentDate}}"
-              charges="{{dayCharges}}">
+              charges="{{dayCharges}}"
+              on-hit-enter="handleEnterKey">
             </week-entry>
             <paper-icon-button icon="arrow-forward" on-tap="nextWeek"></paper-icon-button>
           </div>
@@ -219,13 +220,14 @@
 
         static get observers() {
           return [
-            '_chargesOrCodeChanged(charges.*, selectedCode)',
+            '_chargesOrCodeChanged(dayCharges.*, selectedCode)',
             '_currentDateChanged(currentDate)'
           ]
         }
 
-        _chargesOrCodeChanged(charges, selectedCode) {
-          this.readyForSave = !!selectedCode && charges.base.some(c => c.hours > 0);
+        _chargesOrCodeChanged(dayCharges, selectedCode) {
+          this.readyForSave = !!this.selectedCode && this.dayCharges.some(c => c.hours > 0);
+          console.log(`checking if the form is ready to save: ${this.readyForSave}`);
         }
 
         _currentDateChanged(currentDate) {
@@ -252,6 +254,10 @@
 
         focusOnMonday() {
           this.$.weekEntry.focusOnMonday();
+        }
+
+        handleEnterKey(evt) {
+          setTimeout(() => this.$.comments.focus());
         }
 
         saveClipboard() {
@@ -289,34 +295,14 @@
             return ret;
           }
 
-          this.$.timeSubmitAjax.body = {
-            task: removeParents(task),
-            charges: hours,
-            date: date,
-            comments: comments
-          };
-
-          this.$.timeSubmitAjax.generateRequest();
+          console.log(`attempting to save ${hours} hours on ${date} to ${task.caption}`);
 
         }
 
         save() {
           console.log(`saving ${this.selectedCode}...`);
-          this.saveTask(this.selectedCode, this.currentDate, this.charges,
+          this.saveTask(this.selectedCode, this.currentDate, this.dayCharges,
                         this.$.comments.value);
-        }
-
-        respond() {
-          this.$.weekEntry.clear();
-          this.$.chargeAutocomplete.clear(true);
-          this.$.comments.value = '';
-          this.$.chargeAutocomplete.focus();
-        }
-
-        respondToError(event, detail) {
-          this.$.toast.show({
-            text: event.detail.request.xhr.response.message
-          });
         }
 
       }

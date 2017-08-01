@@ -1,7 +1,9 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/iron-list/iron-list.html">
+
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../bower_components/paper-styles/shadow.html">
@@ -28,28 +30,20 @@
         background-color: #fff;
       }
 
-      .hidden {
-        display: none;
-      }
-
     </style>
 
     <paper-input id="theinput"
       type="text"
       label="Search for charge code here"
       value="{{searchText}}">
-      <div slot="prefix">
-        <iron-icon icon="search"></iron-icon>
-      </div>
-      <div slot="suffix">
-        <paper-icon-button icon="clear" on-tap="clear"></paper-icon-button>
-      </div>
+      <iron-icon icon="search" slot="prefix"></iron-icon>
+      <paper-icon-button icon="clear" slot="suffix" on-tap="clear"></paper-icon-button>
     </paper-input>
 
+    <div id="thelistcontainer" hidden="[[_hideResults]]">
     <iron-list id="thelist"
-      hidden="[[hidden]]"
       class="matchbox"
-      items="[[matches]]"
+      items="[[_getMatches(searchText)]]"
       selection-enabled
       selected-item="{{selectedCode}}">
       <template>
@@ -61,6 +55,7 @@
         </paper-item>
       </template>
     </iron-list>
+    </div>
 
     <breadcrumb-display id="breadcrumb" hidden></breadcrumb-display>
 
@@ -71,17 +66,40 @@
 
         static get is() { return "epycor-autocomplete"; }
 
+        static get properties() {
+          return {
+            selectedCode: {
+              type: Object,
+              notify: true
+            }
+          };
+        }
+
         static get observers() {
           return [
-            'searchTextChanged(searchText)',
-            'selectedCodeChanged(selectedCode)',
-            'hiddenChanged(hidden)'
+            'selectedCodeChanged(selectedCode)'
           ];
         }
 
         constructor() {
           super();
-          this.hidden = true;
+          this._hideResults = true;
+        }
+
+        _shouldHide(searchtext, allmatches, alldata) {
+          this._hideResults = !searchtext;
+        }
+
+        _getMatches(searchText) {
+          let st = searchText.toLowerCase();
+          let allmatches = this.data
+            .filter(a => a.caption.toLowerCase().indexOf(st) !== -1 ||
+                        this.$.breadcrumb.getBreadcrumb(a, true)
+                          .some(bc => bc.indexOf(st) !== -1));
+
+          this._shouldHide(st, allmatches, this.data);
+
+          return allmatches.slice(0, 10); // only show the first 10
         }
 
         clear() {
@@ -94,31 +112,9 @@
           if (selectedCode) {
             this.selectedCode = selectedCode;
             this.$.theinput.value = selectedCode.caption;
-            this.hidden = true;
+            this._hideResults = true;
+            this.dispatchEvent(new CustomEvent('code-selected', {bubbles: true, composed: true}));
           }
-        }
-
-        hiddenChanged(hidden) {
-          console.log(`hidden changed from ${!hidden} to ${hidden}`);
-        }
-
-        _checkToHide(searchText, matches, total) {
-          if (!searchText) setTimeout(() => this.hidden = true, 100);
-        }
-
-        searchTextChanged(searchText) {
-          setTimeout(() => {
-            let st = searchText.toLowerCase();
-            this.matches = this.data
-              .filter(a => a.caption.toLowerCase().indexOf(st) !== -1 ||
-                          this.$.breadcrumb.getBreadcrumb(a, true)
-                            .some(bc => bc.indexOf(st) !== -1));
-
-            this._checkToHide(st, this.matches, this.data);
-
-            this.matches = this.matches.slice(0, 10); // only show the first 10
-            return this.matches;
-          });
         }
 
       }
