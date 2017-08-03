@@ -87,6 +87,7 @@
         </paper-listbox>
 
         <paper-button on-tap="clearAuth">Clear Credentials</paper-button>
+        <paper-button on-tap="exit">Exit Epycor</paper-button>
 
         <paper-dialog id="clearConfirm">
           <p>Are you sure you want to clear your saved credentials?</p>
@@ -177,6 +178,10 @@
 
         credsCleared() {
           this.$.restartDialog.open();
+        }
+
+        exit() {
+          exit_epycor();
         }
 
       }

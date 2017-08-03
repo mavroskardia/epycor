@@ -83,10 +83,6 @@
           }
         }
 
-        static get observers() {
-          return ['currentDateChanged(currentDate)'];
-        }
-
         focusOnMonday() {
           setTimeout(() => {
             this.root.querySelector('#Mon').focus();
@@ -112,10 +108,6 @@
           [].forEach.call(this.querySelectorAll('paper-input'), (pi) => {
             pi.value = '0';
           });
-        }
-
-        currentDateChanged(date) {
-          console.log('caught date change to ' + date);
         }
 
         toDay(date, index) {

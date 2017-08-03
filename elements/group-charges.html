@@ -1,0 +1,108 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="chargebase.html">
+<link rel="import" href="charge-item.html">
+
+<dom-module id="group-charges">
+  <template>
+    <style include="shared-styles">
+
+      header {
+        display: block;
+        width: 100%;
+        cursor: pointer;
+      }
+
+      header span {
+        margin-right: 2rem;
+      }
+
+      header strong {
+        display: inline-block;
+        width: 8rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+
+      charge-item.iron-selected {
+        background-color: var(--selected-color);
+      }
+
+    </style>
+
+    <template is="dom-repeat" items="[[groupCharges(charges)]]">
+      <div>
+        <header class="horizontal layout center" on-tap="expand">
+          <iron-icon icon="expand-more"></iron-icon>
+          <strong class="flex">[[item.key]]</strong>
+          <span>[[numCharges(item.values)]]</span>
+          <iron-icon icon="schedule"></iron-icon>
+          <strong>[[totalHours(item.values)]]h</strong>
+        </header>
+        <iron-collapse>
+          <paper-listbox multi>
+            <template is="dom-repeat" items="[[item.values]]" as="charge">
+              <charge-item charge="[[charge]]"></charge-item>
+            </template>
+          </paper-listbox>
+        </iron-collapse>
+      </div>
+    </template>
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class GroupCharges extends EpycorChargeBase(EpycorUtilities(Polymer.Element)) {
+
+        static get is() { return 'group-charges' }
+
+        static get properties() {
+          return {
+            by: {
+              type: String
+            },
+            currentDate: {
+              type: Date
+            },
+            charges: {
+              type: Array
+            }
+          }
+        }
+
+        groupCharges(charges) {
+          return this.groupByAsArray(
+            charges.map(c => {
+              c.title = this.getTitle(c);
+              c.day = moment(c.TimeEntryDate).format('M/DD');
+              return c;
+            }), this.by)
+            .sort((a, b) => a.key.localeCompare(b.key));
+        }
+
+        expand(evt, detail) {
+          let node = evt.target;
+          while (node.tagName !== "HEADER") node = node.parentElement;
+          let collapsible = node.nextElementSibling;
+          collapsible.toggle();
+          node.querySelector('iron-icon').icon = collapsible.opened ? 'expand-less' : 'expand-more';
+        }
+
+        get selectedCharges() {
+          return Array.prototype
+                  .map.call(this.root.querySelectorAll('paper-listbox'), lb => lb.selectedItems)
+                    .reduce((a,b) => a.concat(b), [])
+                    .map(ci => ci.charge);
+        }
+
+      }
+
+      customElements.define(GroupCharges.is, GroupCharges);
+
+    })();
+  </script>
+</dom-module>

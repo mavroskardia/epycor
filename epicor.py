@@ -345,6 +345,9 @@ class Epicor:
 
         entries = tasks
 
+        if isinstance(tasks, list) and isinstance(tasks[0], dict):
+            entries = [DataNode.fromdict(t) for t in tasks]
+
         if isinstance(tasks, dict):
             entries = [DataNode.fromdict(t) for t in tasks]
 

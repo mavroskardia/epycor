@@ -8,11 +8,14 @@
       .totals {
         font-size: 60%;
         color: #666;
-        margin-top: -1.5rem;
       }
 
       .totals div {
         margin-right: 1rem;
+      }
+
+      .weektotal {
+        font-size: 110%;
       }
 
     </style>
@@ -60,9 +63,9 @@
           [[chargesFor(currentDate, 6, charges)]]
         </strong>
       </div>
-      <div class="vertical layout center">
+      <div class="vertical layout center weektotal">
         <span>Week Total</span>
-        <strong>[[totalHours(charges)]]</strong>
+        <strong class$="[[colorCodeTotal(charges)]]">[[totalHours(charges)]]</strong>
       </div>
     </div>
 
@@ -75,8 +78,22 @@
 
         static get is() { return 'week-totals' }
 
+        static get properties() {
+          return {
+            charges: {
+              type: Array,
+              value: () => []
+            }
+          };
+        }
+
         colorCodeHours(date, dayOfWeek, charges) {
           return this.chargesFor(date, dayOfWeek, charges) < 8 ? 'red' : 'green';
+        }
+
+        colorCodeTotal(charges) {
+          let total = this.totalHours(charges);
+          return total >= 40 ? 'green' : 'red';
         }
 
         chargesFor(date, dayOfWeek, charges) {

@@ -23,13 +23,12 @@ class Epycor:
             'store_credentials': self.store_credentials,
             'get_allocations': self.get_allocations,
             'get_charges': self.get_charges,
-            'clear_credentials': self.clear_credentials
+            'save_charges': self.save_charges,
+            'delete_charges': self.delete_charges,
+            'markforapproval': self.markforapproval,
+            'clear_credentials': self.clear_credentials,
+            'exit_epycor': self.exit_epycor
         }
-
-    def onaftercreated(self, browser):
-        'Code that executes after the browser is created but before the DOM is loaded'
-        print(browser)
-        print('on after created')
 
     def set_client_handlers(self, browser):
         'Where we can hook into various aspects of the browser'
@@ -64,6 +63,7 @@ class Epycor:
             if not allocations:
                 allocations = self.epicor.get_allocations(parse(fromdate), parse(todate))
                 caching.cache_allocations(allocations)
+                allocations = caching.get_cached_allocations()
             jscallback.Call(allocations)
 
         thread = threading.Thread(target=threadfunc, args=(fromdate, todate, jscallback))
@@ -82,12 +82,33 @@ class Epycor:
         thread = threading.Thread(target=threadfunc, args=(fromdate, jscallback))
         thread.start()
 
-    def save_charges(self, payload):
+    def save_charges(self, payload, jscallback):
         'Parse payload and send to epicor for saving'
 
         data = json.loads(payload)
+        self.epicor.save_time(data['date'], data['task'], data['hours'], data.get('comments', ''))
 
+        jscallback.Call()
 
+    def delete_charges(self, payload, jscallback):
+        'Parse payload and send to epicor for deleting'
+
+        tasks = json.loads(payload)
+        self.epicor.delete_time(tasks)
+
+        jscallback.Call()
+
+    def markforapproval(self, payload, jscallback):
+        'Parse payload and send to epicor for marking for approval'
+
+        tasks = json.loads(payload)
+        self.epicor.mark_for_approval(tasks)
+
+        jscallback.Call()
+
+    def exit_epycor(self):
+        'Exit app -- not doing this right at the moment'
+        cef.Shutdown()
 
     def set_javascript_bindings(self, browser):
         'Create JS bindings for python functions'
@@ -95,7 +116,6 @@ class Epycor:
         bindings = cef.JavascriptBindings(bindToFrames=False, bindToPopups=False)
 
         for funcname, func in self.exposed_functions.items():
-            print('adding {} to the exposed functions list'.format(funcname))
             bindings.SetFunction(funcname, func)
 
         browser.SetJavascriptBindings(bindings)
@@ -103,11 +123,16 @@ class Epycor:
     def main(self):
         'Entrypoint'
 
-        basepath = os.path.dirname(os.path.abspath(__file__))
+        if getattr(sys, 'frozen', False):
+            # frozen
+            basepath = os.path.dirname(sys.executable)
+        else:
+            # unfrozen
+            basepath = os.path.dirname(os.path.abspath(__file__))
 
         sys.excepthook = cef.ExceptHook  # To shutdown all CEF processes on error
         cef.Initialize()
-        cef.SetGlobalClientCallback('OnAfterCreated', self.onaftercreated)
+        #cef.SetGlobalClientCallback('OnAfterCreated', self.onaftercreated)
 
         window_info = cef.WindowInfo()
         window_info.SetAsChild(0, [0, 0, 800, 1000])
@@ -132,7 +157,8 @@ class Epycor:
         self.set_client_handlers(browser)
         self.set_javascript_bindings(browser)
 
-        browser.ShowDevTools()
+        if 'debug' in sys.argv:
+            browser.ShowDevTools()
 
         cef.MessageLoop()
         cef.Shutdown()

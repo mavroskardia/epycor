@@ -8,13 +8,19 @@
   <template>
     <style include="shared-styles">
 
+      div,
+      strong,
+      iron-icon {
+        background-color: inherit;
+      }
+
       strong {
         color: inherit;
       }
 
-      .approved { color: #4BB543; } /* http://www.colourlovers.com/color/4BB543/Success_Green */
-      .entered { color: #16B7FF; }
-      .new { color: #9BAAB3; }
+      .approved { --iron-icon-fill-color: #4BB543; } /* http://www.colourlovers.com/color/4BB543/Success_Green */
+      .entered { --iron-icon-fill-color: #16B7FF; }
+      .new { --iron-icon-fill-color: #9BAAB3; }
 
     </style>
 

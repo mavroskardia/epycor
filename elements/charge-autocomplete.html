@@ -40,17 +40,14 @@
 
     <div class="horizontal layout center center-center">
 
-      <epycor-autocomplete
+      <epycor-autocomplete id="autocomplete"
         data="[[eligibleAllocations(allocations)]]"
         selected-code="{{selectedCode}}">
       </epycor-autocomplete>
 
     </div>
 
-    <breadcrumb-display
-      id="breadcrumbDisplay"
-      item="[[selectedCode]]">
-    </breadcrumb-display>
+    <breadcrumb-display id="breadcrumbDisplay" item="[[selectedCode]]"></breadcrumb-display>
 
   </template>
   <script>
@@ -70,14 +67,8 @@
           };
         }
 
-        selectCode(e, detail) {
-          this.selectedCode = detail.value;
-          this.fire('code-selected');
-        }
-
-        clear(skipFocus) {
-          this.$.autocomplete._clear();
-          this.selectedCode = undefined;
+        focus() {
+          this.$.autocomplete.focus();
         }
 
         eligibleAllocations(allocations) {

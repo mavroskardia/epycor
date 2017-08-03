@@ -143,9 +143,6 @@
         <div class="tree-view">
           <epycor-tree tree="[[treeAllocations]]" selected-code="{{selectedCode}}">
           </epycor-tree>
-          <!--<paper-tree id="treeView" hidden
-            on-select="selectCode">
-          </paper-tree>-->
         </div>
 
       </iron-pages>
@@ -167,7 +164,7 @@
           return {
             selectedCode: {
               type: Object,
-              observer: 'selectedCodeChanged',
+              // observer: 'selectedCodeChanged',
               notify: true
             },
             allocations: {
@@ -258,12 +255,6 @@
 
         selectCode(event, node) {
           this.selectedCode = node.data.data;
-        }
-
-        selectedCodeChanged(newc, oldc) {
-          if (newc) {
-            this.selectedCode = newc;
-          }
         }
 
         runFilter() {

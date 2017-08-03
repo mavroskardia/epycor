@@ -20,11 +20,19 @@
         color: #ccc;
       }
 
-      .matchbox {
+      paper-item {
+        margin: -1px;
+      }
+
+      paper-item:focus {
+        background-color: var(--selected-color);
+      }
+
+      #thelistcontainer {
         position: absolute;
         @apply --shadow-elevation-3dp;
         width: 90%;
-        max-height: 30vh;
+        height: 30vh;
         overflow: auto;
         z-index: 1;
         background-color: #fff;
@@ -35,6 +43,8 @@
     <paper-input id="theinput"
       type="text"
       label="Search for charge code here"
+      autofocus
+      on-keydown="_handleKeydown"
       value="{{searchText}}">
       <iron-icon icon="search" slot="prefix"></iron-icon>
       <paper-icon-button icon="clear" slot="suffix" on-tap="clear"></paper-icon-button>
@@ -45,9 +55,10 @@
       class="matchbox"
       items="[[_getMatches(searchText)]]"
       selection-enabled
-      selected-item="{{selectedCode}}">
+      on-selected-item-changed="_selectCode"
+      scroll-target="thelistcontainer">
       <template>
-        <paper-item>
+        <paper-item tabindex$="[[tabIndex]]">
           <paper-item-body two-line>
             <div>[[item.caption]]</div>
             <breadcrumb-display secondary item="[[item]]"></breadcrumb-display>
@@ -70,20 +81,21 @@
           return {
             selectedCode: {
               type: Object,
-              notify: true
+              notify: true,
+              observer: '_selectedCodeChanged'
             }
           };
-        }
-
-        static get observers() {
-          return [
-            'selectedCodeChanged(selectedCode)'
-          ];
         }
 
         constructor() {
           super();
           this._hideResults = true;
+        }
+
+        _selectedCodeChanged(newcode, oldcode) {
+          if (newcode) {
+            this._selectCode(null, {value: newcode});
+          }
         }
 
         _shouldHide(searchtext, allmatches, alldata) {
@@ -102,18 +114,36 @@
           return allmatches.slice(0, 10); // only show the first 10
         }
 
+        _handleKeydown(evt, detail) {
+          switch (evt.which) {
+            case 40: // down key, focus on first entry of list
+              setTimeout(() => {
+                this.$.thelist.focus();
+                this.$.thelist.focusItem(0);
+              }, 10);
+              break;
+            case 13: // enter key, select first in list
+              setTimeout(() => this.$.thelist.selectIndex(0), 10);
+              break;
+          }
+        }
+
+        focus() {
+          this.$.theinput.focus();
+        }
+
         clear() {
           this.$.theinput.value = '';
           this.matches = [];
           this.$.theinput.focus();
         }
 
-        selectedCodeChanged(selectedCode) {
-          if (selectedCode) {
-            this.selectedCode = selectedCode;
-            this.$.theinput.value = selectedCode.caption;
+        _selectCode(evt, detail) {
+          if (detail.value) {
+            this.selectedCode = detail.value;
+            this.$.theinput.value = this.selectedCode.caption;
             this._hideResults = true;
-            this.dispatchEvent(new CustomEvent('code-selected', {bubbles: true, composed: true}));
+            this.dispatchEvent(new CustomEvent('code-selected', {bubbles:true, composed:true}));
           }
         }
 

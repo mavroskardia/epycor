@@ -5,6 +5,9 @@
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 
+<link rel="import" href="../bower_components/web-animations-js/web-animations-next.min.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animation.html">
+
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
@@ -20,8 +23,8 @@
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="charge-autocomplete.html">
 <link rel="import" href="week-entry.html">
-<link rel="import" href="current-charges-by-task.html">
-<link rel="import" href="current-charges-by-date.html">
+<link rel="import" href="week-totals.html">
+<link rel="import" href="group-charges.html">
 <link rel="import" href="empty-set-message.html">
 
 <script src="../bower_components/moment/min/moment.min.js"></script>
@@ -32,8 +35,7 @@
     <style include="shared-styles">
 
       paper-card,
-      paper-material,
-      current-charges {
+      paper-material {
         margin: 1rem 1rem 0rem 1rem;
         display: block;
         width: calc(100% - 2rem);
@@ -67,15 +69,18 @@
         width: 100%;
       }
 
-      current-charges-by-task,
-      current-charges-by-date {
+      group-charges {
         display: block;
         margin: 1rem;
       }
 
+      week-totals {
+        display: block;
+        margin-top: -1rem;
+      }
+
       .charges {
-        height: 32vh;
-        margin-top: -2rem;
+        height: 29vh;
         overflow: auto;
       }
 
@@ -140,27 +145,34 @@
       <paper-card
         heading="Charges for [[startOfWeek(currentDate)]] to [[endOfWeek(currentDate)]]">
 
-        <div class="card-content charges">
+        <div class="card-content">
 
-          <empty-set-message hidden="[[currentCharges.length]]"></empty-set-message>
+          <week-totals current-date="[[currentDate]]" charges="[[currentCharges]]">
+          </week-totals>
 
-          <iron-pages selected="{{currentChargeView}}">
-            <current-charges-by-task current-date="[[currentDate]]" charges="[[currentCharges]]">
-            </current-charges-by-task>
-            <current-charges-by-date charges="[[currentCharges]]">
-            </current-charges-by-date>
-          </iron-pages>
+          <div class="charges">
+
+            <empty-set-message hidden="[[currentCharges.length]]"></empty-set-message>
+
+            <iron-pages id="pages" selected="{{currentChargeView}}">
+              <group-charges by="title" current-date="[[currentDate]]" charges="[[currentCharges]]">
+              </group-charges>
+              <group-charges by="day" current-date="[[currentDate]]" charges="[[currentCharges]]">
+              </group-charges>
+            </iron-pages>
+
+          </div>
 
         </div>
 
         <div class="card-actions">
           <div class="horizontal layout">
-            <paper-button>
+            <paper-button on-tap="ask_to_delete">
               <iron-icon icon="clear"></iron-icon>
               Delete
             </paper-button>
             <div class="flex"></div>
-            <paper-button>
+            <paper-button on-tap="mark_for_approval">
               <iron-icon icon="flag"></iron-icon>
               Mark for Approval
             </paper-button>
@@ -183,6 +195,16 @@
       </paper-dialog-scrollable>
       <div class="buttons">
         <paper-button on-tap="saveClipboard" dialog-confirm>Paste</paper-button>
+        <paper-button dialog-dismiss>Cancel</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="confirmDeleteDialog"
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation">
+      <h2>Are you sure you want to delete [[selectedCharges.length]] charges?</h2>
+      <div class="buttons">
+        <paper-button dialog-confirm on-tap="delete">Delete</paper-button>
         <paper-button dialog-dismiss>Cancel</paper-button>
       </div>
     </paper-dialog>
@@ -227,7 +249,6 @@
 
         _chargesOrCodeChanged(dayCharges, selectedCode) {
           this.readyForSave = !!this.selectedCode && this.dayCharges.some(c => c.hours > 0);
-          console.log(`checking if the form is ready to save: ${this.readyForSave}`);
         }
 
         _currentDateChanged(currentDate) {
@@ -295,14 +316,51 @@
             return ret;
           }
 
-          console.log(`attempting to save ${hours} hours on ${date} to ${task.caption}`);
+          save_charges(JSON.stringify({
+            task: removeParents(task),
+            date: date,
+            hours: hours,
+            comments: comments
+          }), () => {
+            console.log('in save callback');
+            this._currentDateChanged(this.currentDate);
+            this.$.chargeAutocomplete.focus();
+          })
 
         }
 
         save() {
-          console.log(`saving ${this.selectedCode}...`);
           this.saveTask(this.selectedCode, this.currentDate, this.dayCharges,
                         this.$.comments.value);
+        }
+
+        ask_to_delete() {
+          this.selectedCharges = this.$.pages.children[this.currentChargeView].selectedCharges;
+          this.$.confirmDeleteDialog.open();
+        }
+
+        delete() {
+
+          delete_charges(JSON.stringify(this.selectedCharges), () => {
+            this._currentDateChanged(this.currentDate);
+            this.$.chargeAutocomplete.focus();
+            this.$.confirmDeleteDialog.close();
+            this.selectedCharges = [];
+          });
+
+        }
+
+        mark_for_approval() {
+
+          this.selectedCharges = this.$.pages.children[this.currentChargeView].selectedCharges;
+
+          markforapproval(JSON.stringify(this.selectedCharges), () => {
+            this._currentDateChanged(this.currentDate);
+            this.$.chargeAutocomplete.focus();
+            this.$.confirmDeleteDialog.close();
+            this.selectedCharges = [];
+          });
+
         }
 
       }
