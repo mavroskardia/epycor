@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 'Entrypoint module for Epycor'
 
 import sys
