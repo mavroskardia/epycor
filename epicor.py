@@ -323,7 +323,7 @@ class Epicor:
         days_entries_hours = enumerate(entries_hours)
 
         for daynum, (numhours, entry) in days_entries_hours:
-            numhours = float(numhours.get('hours', 0.0))
+            numhours = float(numhours.get('hours', 0.0) or 0.0)
             if numhours <= 0.0:
                 continue
             whendt = when + relativedelta(days=daynum)
@@ -334,8 +334,10 @@ class Epicor:
 
         timelist = ''.join(pieces)
 
-        return timesvc.UpdateTimeAndTaskETCForTimeEntry(timelist, etcdoc)
-
+        try:
+            return timesvc.UpdateTimeAndTaskETCForTimeEntry(timelist, etcdoc)
+        except Fault as fault:
+            return fault
 
     def delete_time(self, tasks):
         'tasks generally will come in as a list of dicts'

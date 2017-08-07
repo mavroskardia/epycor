@@ -105,6 +105,7 @@
 
           <charge-autocomplete id="chargeAutocomplete"
             on-code-selected="focusOnMonday"
+            on-tab-pressed="focusOnSunday"
             selected-code="{{selectedCode}}"
             allocations="[[allocations]]"
             tree-allocations="[[treeAllocations]]">
@@ -273,8 +274,12 @@
           return moment(date).day(6).format('YYYY-MM-DD');
         }
 
+        focusOnSunday() {
+          this.$.weekEntry.focusOn('Sun');
+        }
+
         focusOnMonday() {
-          this.$.weekEntry.focusOnMonday();
+          this.$.weekEntry.focusOn('Mon');
         }
 
         handleEnterKey(evt) {
@@ -322,9 +327,10 @@
             hours: hours,
             comments: comments
           }), () => {
-            console.log('in save callback');
             this._currentDateChanged(this.currentDate);
-            this.$.chargeAutocomplete.focus();
+            this.$.weekEntry.clear();
+            this.$.comments.value = '';
+            this.$.chargeAutocomplete.clear();
           })
 
         }

@@ -125,7 +125,11 @@
             case 13: // enter key, select first in list
               setTimeout(() => this.$.thelist.selectIndex(0), 10);
               break;
+            case 9: // tab, skip to sunday
+              setTimeout(() => this.dispatchEvent(new CustomEvent('tab-pressed', {bubbles:true, composed:true})), 10);
           }
+
+          return false;
         }
 
         focus() {

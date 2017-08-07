@@ -47,9 +47,12 @@
             type="number"
             min="0"
             max="24"
+            step="0.25"
+            tabindex="[[index]]"
             on-focus="highlightText"
             on-keydown="handleKeydown"
             value="{{item.hours}}"
+            auto-validate
             no-label-float>
           </paper-input>
         </div>
@@ -83,10 +86,14 @@
           }
         }
 
-        focusOnMonday() {
+        focusOn(day) {
           setTimeout(() => {
-            this.root.querySelector('#Mon').focus();
+            this.root.querySelector('#' + day).focus();
           });
+        }
+
+        focusOnMonday() {
+          this.focusOn('Mon');
         }
 
         handleKeydown(evt) {
@@ -105,7 +112,7 @@
 
         clear() {
           this.charges.forEach(c => c.hours = 0);
-          [].forEach.call(this.querySelectorAll('paper-input'), (pi) => {
+          [].forEach.call(this.root.querySelectorAll('paper-input'), (pi) => {
             pi.value = '0';
           });
         }

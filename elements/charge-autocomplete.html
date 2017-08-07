@@ -71,6 +71,10 @@
           this.$.autocomplete.focus();
         }
 
+        clear() {
+          this.$.autocomplete.clear();
+        }
+
         eligibleAllocations(allocations) {
           return allocations
             .filter(a => a.node_type === 'InternalCode' ||
