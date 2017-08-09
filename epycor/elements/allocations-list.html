@@ -93,7 +93,13 @@
 
     <div id="msg" hidden="[[!loading]]" class="horizontal layout center center-center">
       <paper-spinner active></paper-spinner>
-      <em>Retrieving your allocations...</em>
+      <div>
+        <h2>Welcome to Epycor!</h2>
+        <p>
+          I need to pull your allocations from Epicor once every three days to make sure I'm up to date.
+          <strong>This can take as long as three minutes.</strong>
+        </p>
+      </div>
     </div>
 
     <div hidden="[[loading]]">
@@ -204,7 +210,11 @@
           this.selectedView = 0;
           this.loading = true;
           let now = moment();
-          get_allocations(now.day(0).format('YYYY-MM-DD'), now.day(6).format('YYYY-MM-DD'), (allocations) => {
+          get_allocations(now.day(0).format('YYYY-MM-DD'), now.day(6).format('YYYY-MM-DD'), (isLongLoad) => {
+            if (isLongLoad) {
+              this.dispatchEvent(new CustomEvent('retrieving-allocations', {bubbles: true, composed: true}));
+            }
+          }, (allocations) => {
             this.rawAllocations = allocations;
             this.buildTree();
             this.loading = false;

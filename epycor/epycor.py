@@ -11,8 +11,8 @@ import json
 from cefpython3 import cefpython as cef
 from dateutil.parser import parse
 
-import epicor
-import caching
+from . import epicor
+from . import caching
 
 
 class Epycor:
@@ -56,16 +56,19 @@ class Epycor:
         self.epicor = epicor.Epicor(username, password)
         jscallback.Call()
 
-    def get_allocations(self, fromdate, todate, jscallback):
+    def get_allocations(self, fromdate, todate, longloadcallback, jscallback):
         'Get allocations from Epicor and send them client-side'
 
         def threadfunc(fromdate, todate, jscallback):
             'Threaded so we do not block the UI'
             allocations = caching.get_cached_allocations()
             if not allocations:
+                longloadcallback.Call(True)
                 allocations = self.epicor.get_allocations(parse(fromdate), parse(todate))
                 caching.cache_allocations(allocations)
                 allocations = caching.get_cached_allocations()
+            else:
+                longloadcallback.Call(False)
             jscallback.Call(allocations)
 
         thread = threading.Thread(target=threadfunc, args=(fromdate, todate, jscallback))
@@ -166,5 +169,9 @@ class Epycor:
         cef.Shutdown()
 
 
-if __name__ == '__main__':
+def run_epycor():
+    'entrypoint for epycor'
     Epycor().main()
+
+if __name__ == '__main__':
+    run_epycor()

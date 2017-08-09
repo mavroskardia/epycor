@@ -6,7 +6,7 @@ import datetime
 
 import keyring
 
-from epicor import NavigatorNode, DataNode
+from .epicor import NavigatorNode, DataNode
 
 
 class CustomEncoder(json.JSONEncoder):

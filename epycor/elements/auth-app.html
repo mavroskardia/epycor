@@ -52,9 +52,6 @@
       <paper-input type="text" id="username" label="Enter your AD username" autofocus>
         <div prefix><iron-icon icon="face"></iron-icon></div>
       </paper-input>
-<!--       <paper-input type="text" id="domain" label="Enter your AD domain">
-        <div prefix><iron-icon icon="chrome-reader-mode"></iron-icon></div>
-      </paper-input> -->
       <paper-input id="password"
         type="password"
         label="Enter your password"
@@ -62,7 +59,7 @@
         <div prefix><iron-icon icon="communication:vpn-key"></iron-icon></div>
       </paper-input>
 
-      <paper-button on-tap="storeCreds">Save Credentials</paper-button>
+      <paper-button id="saveButton" on-tap="storeCreds" raised>Save Credentials</paper-button>
 
     </paper-material>
 
@@ -85,6 +82,7 @@
         static get is() { return 'auth-app' }
 
         storeCreds() {
+          this.$.saveButton.disabled = true;
           store_credentials(this.$.username.value, this.$.password.value, () => {
             window.location = 'index.html';
           });

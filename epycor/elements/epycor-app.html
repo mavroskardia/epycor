@@ -107,7 +107,8 @@
         <allocations-list
           selected-code="{{selectedCode}}"
           allocations="{{allocations}}"
-          tree-allocations="{{treeAllocations}}">
+          tree-allocations="{{treeAllocations}}"
+          on-retrieving-allocations="forceToAllocations">
         </allocations-list>
 
         <time-entry
@@ -182,6 +183,10 @@
 
         exit() {
           exit_epycor();
+        }
+
+        forceToAllocations() {
+          this.selected = 0;
         }
 
       }
