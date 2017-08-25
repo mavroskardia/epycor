@@ -156,9 +156,15 @@
             <empty-set-message hidden="[[currentCharges.length]]"></empty-set-message>
 
             <iron-pages id="pages" selected="{{currentChargeView}}">
-              <group-charges by="title" current-date="[[currentDate]]" charges="[[currentCharges]]">
+              <group-charges
+                by="title"
+                current-date="[[currentDate]]"
+                charges="[[currentCharges]]">
               </group-charges>
-              <group-charges by="day" current-date="[[currentDate]]" charges="[[currentCharges]]">
+              <group-charges
+                by="day"
+                current-date="[[currentDate]]"
+                charges="[[currentCharges]]">
               </group-charges>
             </iron-pages>
 
@@ -336,8 +342,7 @@
         }
 
         save() {
-          this.saveTask(this.selectedCode, this.currentDate, this.dayCharges,
-                        this.$.comments.value);
+          this.saveTask(this.selectedCode, this.currentDate, this.dayCharges, this.$.comments.value);
         }
 
         ask_to_delete() {

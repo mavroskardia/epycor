@@ -6,11 +6,19 @@
   <style include="iron-flex iron-flex-alignment iron-positioning">
 
     :host > * {
+
+      --primary-0: #444;
+      --primary-muted-0: #ddeff4;
+      --secondary-0: #f50;
+
       --primary-text-color: #424242;
-      --secondary-text-color: #aaa;
-      --primary-color: #3299bb;
-      --accent-color: #bb9932;
+      --secondary-text-color: #888;
+      --primary-color: var(--primary-0);
+      --accent-color: var(--secondary-0);
+      /* --primary-color: #3299bb;
+      --accent-color: #bb9932; */
       --selected-color: rgba(50, 153, 187, 0.1);
+
     }
 
     h1, h2, h3, h4, h5, h6 { padding: 0; margin: 0; }
@@ -70,7 +78,7 @@
     }
 
     iron-icon {
-      --iron-icon-fill-color: var(--primary-text-color);
+      --iron-icon-fill-color: #555;
     }
 
     .card-actions {

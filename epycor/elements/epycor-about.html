@@ -1,0 +1,79 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="epycor-about">
+  <template>
+    <style include="shared-styles">
+
+      paper-material {
+        margin: 1rem 1rem 0rem 1rem;
+        display: block;
+        width: calc(100% - 2rem);
+      }
+
+      paper-material header,
+      paper-material p {
+        padding: 0 1rem;
+      }
+
+      paper-button {
+        margin-bottom: 1rem;
+      }
+
+    </style>
+
+    <div class="vertical layout center">
+
+      <paper-material elevation="1">
+
+        <header>
+          <h1>Epycor <small>v[[version]]</small></h1>
+        </header>
+
+        <p>
+          Epycor is an Epicor client made for Info Tech, Inc. to streamline
+          employee timekeeping.
+        </p>
+
+        <p>
+          To view the source code or submit feedback/issues/bugs, please use the
+          button below.
+        </p>
+
+        <paper-button on-tap="navToGitHub">View on GitHub</paper-button>
+
+      </paper-material>
+
+    </div>
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      class EpycorAbout extends Polymer.Element {
+
+        static get is() { return 'epycor-about' }
+
+        static get properties() {
+          return {
+            version: {
+              type: String,
+              value: () => '0.0.2'
+            }
+          };
+        }
+
+        navToGitHub() {
+          open_github_page();
+        }
+
+      }
+
+      customElements.define(EpycorAbout.is, EpycorAbout);
+
+    })();
+  </script>
+</dom-module>

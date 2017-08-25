@@ -1,6 +1,8 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 
@@ -11,8 +13,6 @@
 <link rel="import" href="../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
-
-<!--<link rel="import" href="../bower_components/paper-tree/paper-tree.html">-->
 
 <link rel="import" href="utilities.html">
 <link rel="import" href="shared-styles.html">
@@ -26,7 +26,7 @@
     <style include="shared-styles">
 
       #msg {
-        margin-top: 3rem;
+        margin: 3rem 1rem;
       }
 
       .filterheader {
@@ -38,6 +38,10 @@
       }
 
       .filterheader span { color: #fff; }
+
+      .filterheader iron-icon {
+        --iron-icon-fill-color: var(--secondary-text-color);
+      }
 
       em {
         color: var(--secondary-text-color);
@@ -55,6 +59,7 @@
       iron-list,
       .tree-view {
         height: 79vh;
+        background-color: #fff;
       }
 
       .tree-view {
@@ -66,7 +71,7 @@
       paper-input {
         width: calc(100% - 2rem);
         --paper-input-container-input-color: #eee;
-        --paper-input-container-focus-color: #444;
+        --paper-input-container-focus-color: var(--secondary-0);
         --secondary-text-color: #eee;
         --paper-input-prefix: { color: var(--secondary-text-color, #eee); }
         --paper-input-suffix: { color: var(--secondary-text-color, #eee); }
@@ -91,7 +96,7 @@
 
     </style>
 
-    <div id="msg" hidden="[[!loading]]" class="horizontal layout center center-center">
+    <paper-material elevation="1" id="msg" hidden="[[!loading]]" class="horizontal layout center center-center">
       <paper-spinner active></paper-spinner>
       <div>
         <h2>Welcome to Epycor!</h2>
@@ -100,7 +105,7 @@
           <strong>This can take as long as three minutes.</strong>
         </p>
       </div>
-    </div>
+    </paper-material>
 
     <div hidden="[[loading]]">
 
@@ -120,13 +125,9 @@
           autofocus
           value="{{filter}}"
           label="Filter allocations">
-          <div prefix>
-            <iron-icon icon="filter-list"></iron-icon>
-          </div>
-          <div suffix>
-            <paper-icon-button icon="clear" on-tap="clearFilter">
-            </paper-icon-button>
-          </div>
+          <iron-icon slot="prefix" icon="filter-list"></iron-icon>
+          <paper-icon-button slot="suffix" icon="clear" on-tap="clearFilter">
+          </paper-icon-button>
         </paper-input>
       </paper-material>
 
@@ -170,7 +171,6 @@
           return {
             selectedCode: {
               type: Object,
-              // observer: 'selectedCodeChanged',
               notify: true
             },
             allocations: {
@@ -207,9 +207,11 @@
 
         ready() {
           super.ready();
+
           this.selectedView = 0;
           this.loading = true;
           let now = moment();
+
           get_allocations(now.day(0).format('YYYY-MM-DD'), now.day(6).format('YYYY-MM-DD'), (isLongLoad) => {
             if (isLongLoad) {
               this.dispatchEvent(new CustomEvent('retrieving-allocations', {bubbles: true, composed: true}));
@@ -219,10 +221,12 @@
             this.buildTree();
             this.loading = false;
           });
+
         }
 
         switchView() {
-          this.selectedView = this.$.viewToggle.active ? 0 : 1; // this is reverse because the active flag hasn't switched until after switchView()
+          // reverse of expected because the active flag hasn't switched until after switchView()
+          this.selectedView = this.$.viewToggle.active ? 0 : 1;
           this.$.filterinput.disabled = !this.$.viewToggle.active;
         }
 
@@ -241,11 +245,10 @@
           filter = filter.toLowerCase();
 
           return allocations.filter((alloc) => {
-            let isValid = this.isValidCode(alloc);
             let inCaption = alloc.caption.toLowerCase().indexOf(filter) != -1;
             let breadcrumb = this.$.breadcrumbDisplay.getBreadcrumb(alloc);
             let inBreadcrumb = breadcrumb.join('').indexOf(filter) != -1;
-            return isValid && (inCaption || inBreadcrumb);
+            return this.isValidCode(alloc) && (inCaption || inBreadcrumb);
           });
 
         }

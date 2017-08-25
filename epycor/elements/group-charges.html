@@ -18,7 +18,7 @@
         margin-right: 2rem;
       }
 
-      header strong {
+      header > strong {
         display: inline-block;
         width: 8rem;
         white-space: nowrap;
@@ -38,8 +38,10 @@
           <iron-icon icon="expand-more"></iron-icon>
           <strong class="flex">[[item.key]]</strong>
           <span>[[numCharges(item.values)]]</span>
-          <iron-icon icon="schedule"></iron-icon>
-          <strong>[[totalHours(item.values)]]h</strong>
+          <div class="horizontal layout center">
+            <iron-icon icon="schedule"></iron-icon>
+            <strong>[[totalHours(item.values)]]h</strong>
+          </div>
         </header>
         <iron-collapse>
           <paper-listbox multi>

@@ -139,7 +139,8 @@
         clear() {
           this.$.theinput.value = '';
           this.matches = [];
-          this.$.theinput.focus();
+          this.selectedCode = undefined;
+          setTimeout(() => this.$.theinput.focus(), 100);
         }
 
         _selectCode(evt, detail) {

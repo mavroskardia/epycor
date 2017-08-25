@@ -26,6 +26,7 @@
 
     <div class="vertical layout center">
       <strong>[[shortDate(charge)]]</strong>
+      <small>[[dayOfWeek(charge)]]</small>
       <iron-icon
         icon="[[getIcon(charge)]]"
         class$="[[getIconClass(charge)]]">
@@ -63,6 +64,10 @@
 
         shortDate(item) {
           return moment(item.TimeEntryDate).format('M/D');
+        }
+
+        dayOfWeek(item) {
+          return moment(item.TimeEntryDate).format('ddd');
         }
 
       }

@@ -189,7 +189,7 @@ class Epicor:
                 transport=transport)
         except Exception as e:
             self.are_credentials_loaded = False
-            return
+            raise e
 
         # import pdb; pdb.set_trace()
 

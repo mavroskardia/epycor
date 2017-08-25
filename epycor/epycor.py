@@ -7,6 +7,7 @@ import os
 import threading
 import datetime
 import json
+import webbrowser
 
 from cefpython3 import cefpython as cef
 from dateutil.parser import parse
@@ -29,21 +30,13 @@ class Epycor:
             'delete_charges': self.delete_charges,
             'markforapproval': self.markforapproval,
             'clear_credentials': self.clear_credentials,
+            'open_github_page': self.open_github_page,
             'exit_epycor': self.exit_epycor
         }
 
-    def set_client_handlers(self, browser):
-        'Where we can hook into various aspects of the browser'
-
-        class DisplayHandler:
-            'Handle display-related hooks'
-
-            #pylint: disable=C0103
-            def OnConsoleMessage(self, browser, message, **_):
-                'When something is printed to the console, send it to stdout'
-                print('JS: ', message)
-
-        browser.SetClientHandler(DisplayHandler())
+    def open_github_page(self):
+        'Opens the Epycor GitHub page'
+        webbrowser.open_new('https://github.com/mavroskardia/epycor')
 
     def clear_credentials(self, jscallback):
         'client-facing clear command'
@@ -135,22 +128,23 @@ class Epycor:
             # unfrozen
             basepath = os.path.dirname(os.path.abspath(__file__))
 
-        sys.excepthook = cef.ExceptHook  # To shutdown all CEF processes on error
+        # To shutdown all CEF processes on error
+        sys.excepthook = cef.ExceptHook
         cef.Initialize()
-        #cef.SetGlobalClientCallback('OnAfterCreated', self.onaftercreated)
 
         window_info = cef.WindowInfo()
         window_info.SetAsChild(0, [0, 0, 800, 1000])
 
         username, password, _ = caching.load_cached_credentials()
-
         baseuri = 'file://{file}'
+        indexfile = 'getcreds.html'
 
-        if None in (username, password):
-            indexfile = 'getcreds.html'
-        else:
-            indexfile = 'index.html'
-            self.epicor = epicor.Epicor(username, password)
+        if not None in (username, password):
+            try:
+                self.epicor = epicor.Epicor(username, password)
+                indexfile = 'index.html'
+            except:  # this probably means the u/p was invalid
+                caching.clear_credentials()
 
         index_uri = baseuri.format(file=os.path.join(basepath, indexfile))
 
@@ -159,7 +153,6 @@ class Epycor:
                                         window_info=window_info,
                                         settings=self.browser_settings)
 
-        self.set_client_handlers(browser)
         self.set_javascript_bindings(browser)
 
         if 'debug' in sys.argv:

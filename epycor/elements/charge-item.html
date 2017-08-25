@@ -4,6 +4,7 @@
 <link rel="import" href="../bower_components/paper-item/paper-item-body.html">
 
 <link rel="import" href="charge-item-display.html">
+<link rel="import" href="breadcrumb-display.html">
 
 <dom-module id="charge-item">
   <template>
@@ -27,13 +28,16 @@
         hidden$="[[hideIcon]]"
         slot="item-icon">
       </charge-item-display>
-      <paper-item-body two-line>
+      <paper-item-body three-line>
         <div class="horizontal layout">
           <span class="flex">[[getItemTitle(charge)]]</span>
           <strong>[[charge.Hours]]</strong>
         </div>
         <div secondary>
           <small>[[charge.WorkComment]]</small>
+        </div>
+        <div secondary>
+          <small>[[charge.ProjectCode]]</small>
         </div>
       </paper-item-body>
     </paper-icon-item>

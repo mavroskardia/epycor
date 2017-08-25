@@ -19,15 +19,16 @@
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="allocations-list.html">
 <link rel="import" href="time-entry.html">
+<link rel="import" href="epycor-about.html">
 
 <dom-module id="epycor-app">
   <template>
     <style include="shared-styles">
 
       #contents {
-        overflow: hidden;
+        overflow: auto;
         height: calc(100vh - 64px);
-        background-color: #f3f3f3;
+        background-color: var(--primary-muted-0);
       }
 
       paper-tabs {
@@ -70,7 +71,6 @@
       <app-toolbar>Menu</app-toolbar>
 
       <div class="vertical layout sidebar">
-        <span>Selected Code: [[selectedCode.caption]]</span>
         <paper-listbox selected="{{selected}}" class="flex">
           <paper-icon-item>
             <iron-icon slot="item-icon" icon="assignment"></iron-icon>
@@ -83,6 +83,10 @@
           <paper-icon-item>
             <iron-icon slot="item-icon" icon="dashboard"></iron-icon>
             <paper-item-body>Analytics</paper-item-body>
+          </paper-icon-item>
+          <paper-icon-item>
+            <iron-icon slot="item-icon" icon="info"></iron-icon>
+            <paper-item-body>About</paper-item-body>
           </paper-icon-item>
         </paper-listbox>
 
@@ -120,6 +124,9 @@
         <div>
           coming soon!
         </div>
+
+        <epycor-about>
+        </epycor-about>
 
       </iron-pages>
 
@@ -174,7 +181,6 @@
           clear_credentials(() => {
             window.location = 'getcreds.html';
           });
-          this.$.clearCredsAjax.generateRequest();
         }
 
         credsCleared() {

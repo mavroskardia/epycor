@@ -5,6 +5,7 @@ import json
 import datetime
 
 import keyring
+import appdirs
 
 from .epicor import NavigatorNode, DataNode
 
@@ -27,36 +28,52 @@ class CustomEncoder(json.JSONEncoder):
 def clear_credentials():
     'Clears previously saved credentials and allocations'
 
-    username, _ = load_userid_and_domain_from_cache()
-    os.remove('creds.json')
-    os.remove('allocations.json')
-    keyring.get_keyring().delete_password('epicor', username)
+    userid, _ = load_userid_and_domain_from_cache()
+    creds_path, allocations_path = _get_filepaths()
+    try:
+        os.remove(creds_path)
+        os.remove(allocations_path)
+    except FileNotFoundError:
+        # swallow the exception because this most likely means the file does not yet exist
+        pass
+
+    keyring.get_keyring().delete_password('epicor', userid)
 
 
-def store_credentials(username, password, domain='AD'):
+def store_credentials(userid, password, domain='AD'):
+    'Stores the specified credentials in the platform keychain'
 
+    creds_path, _ = _get_filepaths()
     local_keyring = keyring.get_keyring()
 
     try:
-        local_keyring.set_password('epicor', username, password)
-        with open('creds.json', 'w') as f:
+        local_keyring.set_password('epicor', userid, password)
+        with open(creds_path, 'w') as creds_file:
             json.dump({
-                'userid': username,
+                'userid': userid,
                 'domain': domain
-            }, f)
+            }, creds_file)
+    except FileNotFoundError as fnfe:
+        print('Failed to store credentials:', fnfe)
     except Exception as e:
-        os.remove('creds.json')
-        local_keyring.delete_password('epicor', username)
-        raise e
+        print('Failed to store credentials:', e)
+        os.remove(creds_path)
+        local_keyring.delete_password('epicor', userid)
+        raise
 
 
+# disabling bad naming linter warning because you can't have more than 3 underscores...
+# pylint: disable=C0103
 def load_userid_and_domain_from_cache():
+    'Pull the cached user info'
 
-    if not os.path.exists('creds.json'):
+    creds_path, _ = _get_filepaths()
+
+    if not os.path.exists(creds_path):
         return None, None
 
-    with open('creds.json') as f:
-        creds = json.load(f)
+    with open(creds_path) as creds_file:
+        creds = json.load(creds_file)
 
     if not 'userid' in creds or not 'domain' in creds:
         return None, None
@@ -65,6 +82,7 @@ def load_userid_and_domain_from_cache():
 
 
 def load_cached_credentials():
+    'Load previously cached credentials'
 
     # "userid" instead of "username" to match Epicor naming scheme.
     userid, domain = load_userid_and_domain_from_cache()
@@ -79,48 +97,48 @@ def load_cached_credentials():
 
 
 def get_cached_allocations():
+    'Return deserialized cached allocations'
 
-    if not os.path.exists('allocations.json'):
+    _, allocations_path = _get_filepaths()
+
+    if not os.path.exists(allocations_path):
         return None
 
-    with open('allocations.json') as f:
+    with open(allocations_path) as f:
         allocdata = json.load(f)
 
     cachedate = datetime.datetime.fromtimestamp(float(allocdata['date']))
     delta = datetime.datetime.now() - cachedate
 
     if delta.days > 3:
-        # TODO: provide UI feedback that we are re-caching
         return None
 
     return allocdata['allocations']
 
 
 def cache_allocations(allocs):
+    'Cache allocations in user cache dir'
 
     obj = {
         'allocations': allocs,
         'date': datetime.datetime.now().timestamp()
     }
 
-    with open('allocations.json', 'w') as f:
-        json.dump(obj, f, cls=CustomEncoder)
+    _, allocations_path = _get_filepaths()
+
+    with open(allocations_path, 'w') as alloc_file:
+        json.dump(obj, alloc_file, cls=CustomEncoder)
 
     return True
 
 
-# def add_breadcrumbs(allocs):
+def _get_filepaths():
 
-#     # basic thought is to order the allocations by outline
-#     # which ought to mean just going back one in the index to
-#     # find any given node's parent
-#     allocs = sorted(allocs, key=lambda alloc: alloc.outline)
+    cache_dir = appdirs.user_cache_dir('epycor')
+    creds_path = os.path.join(cache_dir, 'creds.json')
+    allocations_path = os.path.join(cache_dir, 'allocations.json')
 
-#     for idx, alloc in enumerate(allocs):
-#         alloc.breadcrumb = list(reversed(
-#             [allocs[idx-i].caption
-#              for i,v in
-#              enumerate(alloc.outline.split('.'))
-#              if i != 0 and not alloc.outline.startswith('1')])) # skip self and internal
+    if not os.path.exists(cache_dir):
+        os.mkdir(cache_dir)
 
-#     return allocs
+    return creds_path, allocations_path

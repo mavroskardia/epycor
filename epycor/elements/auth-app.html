@@ -82,7 +82,7 @@
         static get is() { return 'auth-app' }
 
         storeCreds() {
-          this.$.saveButton.disabled = true;
+          setTimeout(() => { this.$.saveButton.disabled = true; });
           store_credentials(this.$.username.value, this.$.password.value, () => {
             window.location = 'index.html';
           });

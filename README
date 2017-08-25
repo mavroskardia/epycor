@@ -1,1 +1,15 @@
 Epycor
+===================
+Epycor is an Epicor client for use by my company.  It provides a caching, streamlined interface for time entry.
+
+The Epicor interface is written in Python and the client application is written using Polymer (HTML, CSS, and ES6 JavaScript) on top of the Chrome Embedded Framework.
+
+Installation
+----------------
+For Windows:
+> - Make sure you have the [Visual C++ Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=52685)
+
+For all platforms:
+> - You will need Python 3.5 or higher.
+> - Make sure you have the latest `pip` and `setuptools` by typing: `python -m pip install --upgrade pip` and `pip install --upgrade setuptools`
+> - From the command line, type: `pip install https://github.com/mavroskardia/epycor/releases/download/v0.0.1/epycor-0.0.1.tar.gz`
