@@ -155,16 +155,18 @@
 
             <empty-set-message hidden="[[currentCharges.length]]"></empty-set-message>
 
-            <iron-pages id="pages" selected="{{currentChargeView}}">
+            <iron-pages id="pages" selected="{{currentChargeView}}" on-selected-items-changed="[[_updateSelected]]">
               <group-charges
                 by="title"
                 current-date="[[currentDate]]"
-                charges="[[currentCharges]]">
+                charges="[[currentCharges]]"
+                selected-charges="{{selectedCharges}}">
               </group-charges>
               <group-charges
                 by="day"
                 current-date="[[currentDate]]"
-                charges="[[currentCharges]]">
+                charges="[[currentCharges]]"
+                selected-charges="{{selectedCharges}}">
               </group-charges>
             </iron-pages>
 
@@ -174,12 +176,12 @@
 
         <div class="card-actions">
           <div class="horizontal layout">
-            <paper-button on-tap="ask_to_delete">
+            <paper-button on-tap="ask_to_delete" disabled="[[_elligibleForDelete(selectedCharges)]]">
               <iron-icon icon="clear"></iron-icon>
               Delete
             </paper-button>
             <div class="flex"></div>
-            <paper-button on-tap="mark_for_approval">
+            <paper-button on-tap="mark_for_approval" disabled="[[_elligibleForApproval(selectedCharges)]]">
               <iron-icon icon="flag"></iron-icon>
               Mark for Approval
             </paper-button>
@@ -209,7 +211,7 @@
     <paper-dialog id="confirmDeleteDialog"
       entry-animation="scale-up-animation"
       exit-animation="fade-out-animation">
-      <h2>Are you sure you want to delete [[selectedCharges.length]] charges?</h2>
+      <h2>Are you sure you want to delete [[selectedCharges.length]] charge[[deleteSuffix]]?</h2>
       <div class="buttons">
         <paper-button dialog-confirm on-tap="delete">Delete</paper-button>
         <paper-button dialog-dismiss>Cancel</paper-button>
@@ -252,6 +254,20 @@
             '_chargesOrCodeChanged(dayCharges.*, selectedCode)',
             '_currentDateChanged(currentDate)'
           ]
+        }
+
+        _elligibleForDelete(selectedCharges) {
+          if (!selectedCharges || selectedCharges.length === 0) return true;
+          let disabled = selectedCharges.some(c => c.StatusCode == 'A');
+          console.log(`delete is disabled? ${disabled}`);
+          return disabled;
+        }
+
+        _elligibleForApproval(selectedCharges) {
+          if (!selectedCharges || selectedCharges.length === 0) return true;
+          let disabled = selectedCharges.some(c => c.StatusCode == 'A' || c.StatusCode == 'E');
+          console.log(`approval is disabled? ${disabled}`);
+          return disabled;
         }
 
         _chargesOrCodeChanged(dayCharges, selectedCode) {
@@ -347,6 +363,7 @@
 
         ask_to_delete() {
           this.selectedCharges = this.$.pages.children[this.currentChargeView].selectedCharges;
+          this.deleteSuffix = this.selectedCharges.length > 1 ? 's' : '';
           this.$.confirmDeleteDialog.open();
         }
 

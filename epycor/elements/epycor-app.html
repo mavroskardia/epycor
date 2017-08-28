@@ -12,6 +12,7 @@
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
@@ -61,9 +62,17 @@
     </paper-dialog>
 
     <app-header>
-      <app-toolbar>
+      <app-toolbar class="horizontal layout center">
         <paper-icon-button icon="menu" on-tap="drawerToggle"></paper-icon-button>
         <div main-title>Epycor</div>
+        <paper-icon-button id="assignbtn" icon="assignment" on-tap="switchToAllocations"></paper-icon-button>
+        <paper-tooltip for="assignbtn">Your Allocations</paper-tooltip>
+        <paper-icon-button id="schedulebtn" icon="schedule" on-tap="switchToTimeEntry"></paper-icon-button>
+        <paper-tooltip for="schedulebtn">Enter Time</paper-tooltip>
+        <paper-icon-button id="dashbtn" icon="dashboard" on-tap="switchToAnalytics"></paper-icon-button>
+        <paper-tooltip for="dashbtn">Analytics</paper-tooltip>
+        <paper-icon-button id="infobtn" icon="info" on-tap="switchToAbout"></paper-icon-button>
+        <paper-tooltip for="infobtn">About Epycor</paper-tooltip>
       </app-toolbar>
     </app-header>
 
@@ -159,6 +168,22 @@
 
         drawerToggle() {
           this.$.drawer.opened = !this.$.drawer.opened;
+        }
+
+        switchToAllocations() {
+          this.selected = 0;
+        }
+
+        switchToTimeEntry() {
+          this.selected = 1;
+        }
+
+        switchToAnalytics() {
+          this.selected = 2;
+        }
+
+        switchToAbout() {
+          this.selected = 3;
         }
 
         selectedChanged(selected) {

@@ -40,6 +40,7 @@
     "paper-dialog-scrollable": "PolymerElements/paper-dialog-scrollable#^2.0.0",
     "iron-collapse": "polymerelements/iron-collapse#^2.0.0",
     "paper-ripple": "polymerelements/paper-ripple#^2.0.0",
-    "web-animations-js": "^2.3.1"
+    "web-animations-js": "^2.3.1",
+    "paper-tooltip": "polymerelements/paper-tooltip#^2.0.1"
   }
 }

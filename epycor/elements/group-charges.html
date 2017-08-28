@@ -44,7 +44,7 @@
           </div>
         </header>
         <iron-collapse>
-          <paper-listbox multi>
+          <paper-listbox multi on-selected-items-changed="_updateSelectedCharges">
             <template is="dom-repeat" items="[[item.values]]" as="charge">
               <charge-item charge="[[charge]]"></charge-item>
             </template>
@@ -72,6 +72,11 @@
             },
             charges: {
               type: Array
+            },
+            selectedCharges: {
+              type: Array,
+              notify: true,
+              value: () => []
             }
           }
         }
@@ -94,11 +99,19 @@
           node.querySelector('iron-icon').icon = collapsible.opened ? 'expand-less' : 'expand-more';
         }
 
-        get selectedCharges() {
-          return Array.prototype
-                  .map.call(this.root.querySelectorAll('paper-listbox'), lb => lb.selectedItems)
-                    .reduce((a,b) => a.concat(b), [])
-                    .map(ci => ci.charge);
+        // get selectedCharges() {
+        //   return Array.prototype
+        //           .map.call(this.root.querySelectorAll('paper-listbox'), lb => lb.selectedItems)
+        //             .reduce((a,b) => a.concat(b), [])
+        //             .map(ci => ci.charge);
+        // }
+
+        _updateSelectedCharges() {
+          console.log('updating selected charges');
+          this.selectedCharges = Array.prototype
+            .map.call(this.root.querySelectorAll('paper-listbox'), lb => lb.selectedItems)
+              .reduce((a,b) => a.concat(b), [])
+              .map(ci => ci.charge);
         }
 
       }

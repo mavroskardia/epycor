@@ -133,7 +133,7 @@ class Epycor:
         cef.Initialize()
 
         window_info = cef.WindowInfo()
-        window_info.SetAsChild(0, [0, 0, 800, 1000])
+        window_info.SetAsChild(0, [0, 0, 800, 1024])
 
         username, password, _ = caching.load_cached_credentials()
         baseuri = 'file://{file}'

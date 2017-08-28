@@ -273,6 +273,7 @@ class Epicor:
                 entries_result.body.GetAllTimeEntriesResult._value_1]
 
     def save_time(self, when=None, what=None, hours=None, comments=None):
+        'Commit time to Epicor'
 
         if not when or not what or not hours:
             # TODO: handle this more gracefully
@@ -353,6 +354,9 @@ class Epicor:
         if isinstance(tasks, dict):
             entries = [DataNode.fromdict(t) for t in tasks]
 
+        # filter out entries that cannot be deleted (those already approved)
+        entries = [e for e in entries if e.StatusCode != 'A']
+
         etcdoc = '<TimeTaskETCForProject useActionHints="true"/>'
         timesvc = self.timeclient.service
 
@@ -381,6 +385,9 @@ class Epicor:
             return None
 
         entries = [DataNode.fromdict(t) for t in tasks]
+
+        # filter out those that are already marked for approval or approved
+        entries = [e for e in entries if e.StatusCode != 'A' or e.StatusCode != 'E']
 
         etcdoc = '<TimeTaskETCForProject useActionHints="true"/>'
         timesvc = self.timeclient.service
