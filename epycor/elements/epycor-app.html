@@ -27,9 +27,13 @@
     <style include="shared-styles">
 
       #contents {
-        overflow: auto;
+        overflow-y: auto;
         height: calc(100vh - 64px);
         background-color: var(--primary-muted-0);
+      }
+
+      app-header paper-icon-button {
+        --paper-icon-button-ink-color: var(--secondary-0);
       }
 
       paper-tabs {

@@ -16,6 +16,7 @@
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
 
@@ -69,6 +70,11 @@
         width: 100%;
       }
 
+      paper-tabs {
+        width: 90%;
+        margin: 0 auto;
+      }
+
       group-charges {
         display: block;
         margin: 1rem;
@@ -93,6 +99,12 @@
         --iron-icon-fill-color: cornflowerblue;
       }
 
+      .center-text {
+        position: relative;
+        text-align: center;
+        cursor: pointer;
+      }
+
     </style>
 
     <paper-toast id="toast"></paper-toast>
@@ -111,14 +123,22 @@
             tree-allocations="[[treeAllocations]]">
           </charge-autocomplete>
 
-          <div class="horizontal layout center center-center">
-            <paper-icon-button icon="arrow-back" on-tap="prevWeek"></paper-icon-button>
+          <div class="horizontal layout center center-text">
+            <div class="vertical layout center center-text" on-tap="prevWeek">
+              <iron-icon icon="arrow-back" on-tap="prevWeek"></iron-icon>
+              <small>Last Week</small>
+              <paper-ripple></paper-ripple>
+            </div>
             <week-entry id="weekEntry"
               current-date="{{currentDate}}"
               charges="{{dayCharges}}"
               on-hit-enter="handleEnterKey">
             </week-entry>
-            <paper-icon-button icon="arrow-forward" on-tap="nextWeek"></paper-icon-button>
+            <div class="vertical layout center center-text" on-tap="nextWeek">
+              <iron-icon icon="arrow-forward"></iron-icon>
+              <small>Next Week</small>
+              <paper-ripple></paper-ripple>
+            </div>
           </div>
 
           <paper-textarea id="comments"
@@ -258,16 +278,12 @@
 
         _elligibleForDelete(selectedCharges) {
           if (!selectedCharges || selectedCharges.length === 0) return true;
-          let disabled = selectedCharges.some(c => c.StatusCode == 'A');
-          console.log(`delete is disabled? ${disabled}`);
-          return disabled;
+          return selectedCharges.some(c => c.StatusCode == 'A');
         }
 
         _elligibleForApproval(selectedCharges) {
           if (!selectedCharges || selectedCharges.length === 0) return true;
-          let disabled = selectedCharges.some(c => c.StatusCode == 'A' || c.StatusCode == 'E');
-          console.log(`approval is disabled? ${disabled}`);
-          return disabled;
+          return selectedCharges.some(c => c.StatusCode == 'A' || c.StatusCode == 'E');
         }
 
         _chargesOrCodeChanged(dayCharges, selectedCode) {

@@ -99,15 +99,7 @@
           node.querySelector('iron-icon').icon = collapsible.opened ? 'expand-less' : 'expand-more';
         }
 
-        // get selectedCharges() {
-        //   return Array.prototype
-        //           .map.call(this.root.querySelectorAll('paper-listbox'), lb => lb.selectedItems)
-        //             .reduce((a,b) => a.concat(b), [])
-        //             .map(ci => ci.charge);
-        // }
-
         _updateSelectedCharges() {
-          console.log('updating selected charges');
           this.selectedCharges = Array.prototype
             .map.call(this.root.querySelectorAll('paper-listbox'), lb => lb.selectedItems)
               .reduce((a,b) => a.concat(b), [])
