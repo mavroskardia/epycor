@@ -42,7 +42,7 @@ setup(
         'pylint==1.7.2',
         'python-dateutil==2.6.0',
         'pytz==2017.2',
-        'requests==2.18.1',
+        'requests==2.20.0',
         'requests-ntlm==1.0.0',
         'requests-toolbelt==0.8.0',
         'SecretStorage==2.3.1;platform_system=="Linux"',
