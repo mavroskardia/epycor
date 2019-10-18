@@ -47,7 +47,7 @@ setup(
         'requests-toolbelt==0.8.0',
         'SecretStorage==2.3.1;platform_system=="Linux"',
         'six==1.10.0',
-        'urllib3==1.21.1',
+        'urllib3==1.24.2',
         'wrapt==1.10.10',
         'zeep==2.1.1',
     ]
