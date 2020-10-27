@@ -26,7 +26,7 @@ setup(
         'certifi==2017.4.17',
         'cffi==1.10.0',
         'chardet==3.0.4',
-        'cryptography==1.9',
+        'cryptography==3.2',
         'dbus-python==1.2.4;platform_system=="Linux"',
         'defusedxml==0.5.0',
         'idna==2.5',
