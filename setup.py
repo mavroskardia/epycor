@@ -34,7 +34,7 @@ setup(
         'isort==4.2.15',
         'keyring==10.3.3',
         'lazy-object-proxy==1.3.1',
-        'lxml==3.8.0',
+        'lxml==4.6.5',
         'mccabe==0.6.1',
         'ntlm-auth==1.0.4',
         'ordereddict==1.1',
